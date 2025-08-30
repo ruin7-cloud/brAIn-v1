@@ -58,7 +58,7 @@
       background: #eee;
       border-radius: 8px;
       overflow: hidden;
-      display: none; /* Başta gizli */
+      display: none;
     }
     .bar {
       height: 25px;
@@ -76,22 +76,27 @@
       color: #fff;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
     }
+    #loading {
+      display: none;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
   <h1>🧠 brAIn Demo</h1>
-  <p>Upload an MRI image to classify tumor types.</p>
-  <p class="disclaimer">
-     This project currently works only with brain MRI images. It is under development and cannot be used for medical diagnosis at this stage.
-  </p>
+  <p>Upload a brain MRI image to classify tumor types.</p>
   <p class="disclaimer" style="font-weight:bold; font-size:1.1rem; color:#ffeb3b;">
     WARNING
   </p>
+  <p class="disclaimer">
+     This project currently works only with brain MRI images. It is under development and cannot be used for medical diagnosis at this stage.
+  </p>
+
   <label class="upload-btn" for="file-input">Choose Image</label>
   <input type="file" id="file-input" accept="image/*" onchange="handleImageUpload(event)">
 
+  <div id="loading">⏳ Loading... Please wait.</div>
   <img id="uploaded-image" alt="Uploaded Image Preview">
-
   <div id="label-container"></div>
   <div id="result"></div>
 
@@ -112,7 +117,10 @@
     loadModel();
 
     async function predict(img) {
+      document.getElementById("loading").style.display = "block";
       const prediction = await model.predict(img);
+      document.getElementById("loading").style.display = "none";
+
       const labelContainer = document.getElementById("label-container");
       labelContainer.innerHTML = "";
       let bestClass = "";
@@ -128,6 +136,7 @@
         }
       }
 
+      // MR olmayan veya datasette bulunmayan görüntü uyarısı
       if (!validPrediction || bestProb < 0.05) {
         document.getElementById("result").innerHTML = 
           "This does not appear to be a brain MRI image.";
@@ -157,6 +166,10 @@
     function handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        if (!file.type.startsWith("image/")) {
+          document.getElementById("result").innerHTML = "Please upload a valid image file.";
+          return;
+        }
         const reader = new FileReader();
         reader.onload = function(e) {
           const img = document.getElementById("uploaded-image");
