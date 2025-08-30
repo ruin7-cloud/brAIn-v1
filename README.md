@@ -1,5 +1,7 @@
 # brAIn-v1
 
+https://ruin7-cloud.github.io/brAIn-v1/
+
 **brAIn-v1** is a web-based demo project that classifies brain MRI images using a Teachable Machine model.
 
 ---
