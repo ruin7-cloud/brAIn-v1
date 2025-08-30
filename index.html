@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,30 +6,57 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f0f4c3, #b2ebf2);
+      background: linear-gradient(135deg, #e3f2fd 40%, #90caf9 60%, #64b5f6 100%);
       margin: 0;
-      padding: 40px;
+      padding: 50px;
       text-align: center;
       color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
-      color: #1e88e5;
+      color: #1565c0;
       font-size: 2.5rem;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    .file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 30px;
     }
     input[type="file"] {
-      padding: 10px;
-      margin: 20px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      opacity: 0;
+      width: 200px;
+      height: 50px;
+      position: absolute;
+      left: 0;
+      top: 0;
       cursor: pointer;
+    }
+    .file-btn {
+      display: inline-block;
+      padding: 15px 30px;
+      background: #1e88e5;
+      color: white;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      font-weight: bold;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    }
+    .file-btn:hover {
+      background: #1565c0;
+      transform: translateY(-2px);
     }
     #uploaded-image {
       max-width: 350px;
-      margin-top: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
       display: none;
+      margin-bottom: 20px;
     }
     .bar-container {
       width: 350px;
@@ -37,6 +64,7 @@
       background: #eee;
       border-radius: 8px;
       overflow: hidden;
+      display: none;
     }
     .bar {
       height: 28px;
@@ -44,22 +72,25 @@
       padding-left: 10px;
       color: #fff;
       font-weight: bold;
-      transition: width 0.4s ease;
+      width: 0%;
+      transition: width 1s ease;
     }
     #result {
       margin-top: 25px;
       font-size: 1.4rem;
       font-weight: bold;
-      color: #1e88e5;
+      color: #1565c0;
     }
   </style>
 </head>
 <body>
   <h1>🧠 brAIn-v1 Demo</h1>
-  <p>Upload an MRI image to classify tumor type.</p>
 
-  <input type="file" accept="image/*" onchange="handleImageUpload(event)">
-  <br>
+  <div class="file-input-wrapper">
+    <label class="file-btn" for="file-upload">Upload MRI Image</label>
+    <input id="file-upload" type="file" accept="image/*" onchange="handleImageUpload(event)">
+  </div>
+
   <img id="uploaded-image" alt="Uploaded Image">
 
   <div id="label-container"></div>
@@ -70,11 +101,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
   <script>
-    const URL = "./model/"; // model klasör adı
+    const URL = "./model/";
     let model, maxPredictions, modelReady = false;
     let labelContainer = null;
 
-    // Modeli yükle
     async function loadModel() {
       const modelURL = URL + "model.json";
       const metadataURL = URL + "metadata.json";
@@ -88,10 +118,13 @@
       for (let i = 0; i < maxPredictions; i++) {
         const barContainer = document.createElement("div");
         barContainer.className = "bar-container";
+        barContainer.id = "bar-container-" + i;
+
         const bar = document.createElement("div");
         bar.className = "bar";
         bar.id = "bar-" + i;
         bar.style.width = "0%";
+
         barContainer.appendChild(bar);
         labelContainer.appendChild(barContainer);
       }
@@ -99,7 +132,6 @@
 
     loadModel();
 
-    // Fotoğraf yüklendiğinde çalışacak fonksiyon
     function handleImageUpload(event) {
       if (!modelReady) {
         alert("Model henüz yüklenmedi, lütfen bekleyin...");
@@ -119,35 +151,47 @@
       }
     }
 
-    // Tahmin fonksiyonu
     async function predict(img) {
       const prediction = await model.predict(img);
 
-      let bestClass = prediction[0].className;
-      let bestProb = prediction[0].probability;
+      let bestClass = "";
+      let bestProb = 0;
 
       for (let i = 0; i < prediction.length; i++) {
-        if (prediction[i].probability > bestProb) {
-          bestProb = prediction[i].probability;
-          bestClass = prediction[i].className;
-        }
-
         const percent = Math.round(prediction[i].probability * 100);
+        const barContainer = document.getElementById("bar-container-" + i);
         const bar = document.getElementById("bar-" + i);
-        if (bar) {
-          bar.style.width = percent + "%";
+
+        if (percent > 0) {
+          barContainer.style.display = "block";
           const colors = ["#4a90e2","#f44336","#ff9800","#4caf50"];
           bar.style.background = colors[i % colors.length];
+
+          // Yavaş dolan animasyon
+          bar.style.width = "0%";
+          setTimeout(() => {
+            bar.style.width = percent + "%";
+          }, 100);
+
           bar.textContent = prediction[i].className + " (" + percent + "%)";
+
+          if (prediction[i].probability > bestProb) {
+            bestProb = prediction[i].probability;
+            bestClass = prediction[i].className;
+          }
+        } else {
+          barContainer.style.display = "none";
         }
       }
 
-      document.getElementById("result").innerHTML =
-        "Predicted Class: <span style='color:#1e88e5'>" + bestClass +
-        "</span> (" + (bestProb*100).toFixed(1) + "%)";
+      if(bestClass !== "") {
+        document.getElementById("result").innerHTML =
+          "Predicted Class: <span style='color:#1565c0'>" + bestClass +
+          "</span> (" + (bestProb*100).toFixed(1) + "%)";
+      } else {
+        document.getElementById("result").innerHTML = "No prediction above 0%";
+      }
     }
   </script>
 </body>
 </html>
-
-
