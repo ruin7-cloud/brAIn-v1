@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e3f2fd 40%, #90caf9 60%, #64b5f6 100%);
+      background-color: #2196f3; /* Düz mavi arka plan */
       margin: 0;
       padding: 50px;
       text-align: center;
@@ -14,12 +14,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-height: 100vh;
     }
     h1 {
-      color: #1565c0;
+      color: #ffffff;
       font-size: 2.5rem;
       margin-bottom: 30px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
     .file-input-wrapper {
       position: relative;
@@ -38,7 +39,7 @@
     .file-btn {
       display: inline-block;
       padding: 15px 30px;
-      background: #1e88e5;
+      background: #1565c0;
       color: white;
       font-size: 1rem;
       border-radius: 12px;
@@ -48,7 +49,7 @@
       box-shadow: 0 6px 15px rgba(0,0,0,0.2);
     }
     .file-btn:hover {
-      background: #1565c0;
+      background: #0d47a1;
       transform: translateY(-2px);
     }
     #uploaded-image {
@@ -79,7 +80,14 @@
       margin-top: 25px;
       font-size: 1.4rem;
       font-weight: bold;
-      color: #1565c0;
+      color: #ffffff;
+    }
+    #disclaimer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #e3f2fd;
+      max-width: 500px;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -95,8 +103,10 @@
 
   <div id="label-container"></div>
   <div id="result"></div>
+  <div id="disclaimer">
+    This project is currently in a testing phase, purely a hobby project, still under development, and cannot be used for any medical diagnosis or definitive clinical decisions.
+  </div>
 
-  <!-- TensorFlow.js & Teachable Machine -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
@@ -112,7 +122,6 @@
       maxPredictions = model.getTotalClasses();
       modelReady = true;
 
-      // Label container oluştur
       labelContainer = document.getElementById("label-container");
       labelContainer.innerHTML = "";
       for (let i = 0; i < maxPredictions; i++) {
@@ -134,7 +143,7 @@
 
     function handleImageUpload(event) {
       if (!modelReady) {
-        alert("Model henüz yüklenmedi, lütfen bekleyin...");
+        alert("Model is still loading, please wait...");
         return;
       }
 
@@ -167,7 +176,6 @@
           const colors = ["#4a90e2","#f44336","#ff9800","#4caf50"];
           bar.style.background = colors[i % colors.length];
 
-          // Yavaş dolan animasyon
           bar.style.width = "0%";
           setTimeout(() => {
             bar.style.width = percent + "%";
@@ -186,7 +194,7 @@
 
       if(bestClass !== "") {
         document.getElementById("result").innerHTML =
-          "Predicted Class: <span style='color:#1565c0'>" + bestClass +
+          "Predicted Class: <span style='color:#ffffff'>" + bestClass +
           "</span> (" + (bestProb*100).toFixed(1) + "%)";
       } else {
         document.getElementById("result").innerHTML = "No prediction above 0%";
