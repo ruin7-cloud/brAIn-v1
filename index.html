@@ -18,18 +18,17 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
 
-       body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--primary-text);
-    margin: 0;
-    display: flex;
-    justify-content: center; /* Yatayda ortalar */
-    align-items: center;    /* Dikeyde ortalar */
-    min-height: 100vh;      /* Body'nin en az ekran yüksekliğinde olmasını sağlar */
-    padding: 20px;
-    box-sizing: border-box;
-
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .card {
@@ -387,7 +386,426 @@
             }
         }
         
-        fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+        fileInput.addEventListener('change', (e) => handleFileSelect(e.control.files[0]));
+        
+        // Drag and Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        });
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            handleFileSelect(file);
+        });
+
+        function resetApp() {
+            fileInput.value = '';
+            showState('default');
+        }
+
+        tryAgainBtn.addEventListener('click', resetApp);
+        scanAnotherBtn.addEventListener('click', resetApp);
+
+        // --- Initialize ---
+        init();
+    </script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>brAIn - Tümör Analizi</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-color: #121829;
+            --card-color: rgba(38, 45, 69, 0.7);
+            --primary-text: #FFFFFF;
+            --secondary-text: #A1A8B8;
+            --accent-color: #4A4DE6;
+            --error-color: #FF5B5B;
+            --success-color: #00C48C;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: var(--card-color);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* --- STATE CONTAINERS --- */
+        .state {
+            display: none; /* Hide all states by default */
+        }
+        .state.active {
+            display: block; /* Show only the active state */
+        }
+
+        /* --- DEFAULT STATE --- */
+        #drop-zone {
+            border: 2px dashed var(--secondary-text);
+            border-radius: 16px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #drop-zone:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        #drop-zone svg {
+            color: var(--accent-color);
+            margin-bottom: 16px;
+        }
+        .upload-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .upload-subtitle {
+            font-size: 14px;
+            color: var(--secondary-text);
+            margin-top: 8px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+
+        /* --- UPLOADING & ERROR STATE --- */
+        .file-info-card {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .file-icon {
+            flex-shrink: 0;
+            padding: 8px;
+            background-color: var(--accent-color);
+            border-radius: 8px;
+        }
+        .file-details {
+            text-align: left;
+            overflow: hidden;
+        }
+        .file-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-status {
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+        .status-icon {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        #error-state .file-icon { background-color: var(--error-color); }
+
+        /* --- RESULT STATE --- */
+        #result-image-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border-color);
+        }
+        .results-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .prediction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: left;
+        }
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .prediction-label {
+            flex-basis: 120px; /* Sabit genişlik */
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .prediction-bar-bg {
+            flex-grow: 1;
+            height: 24px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .prediction-bar {
+            width: 0; /* JS ile ayarlanacak */
+            height: 100%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            box-sizing: border-box;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-text);
+            transition: width 0.8s ease-in-out;
+        }
+        .prediction-item.top-prediction .prediction-bar {
+            background-color: var(--success-color);
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 24px;
+        }
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: var(--primary-text);
+        }
+        .btn-primary:hover {
+            background-color: #3a3dc5;
+        }
+    </style>
+</head>
+<body>
+
+    <main class="card">
+        <div id="default-state" class="state active">
+            <label for="file-input" id="drop-zone">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19.5 14.25C19.5 13.5967 19.2366 12.9696 18.7678 12.4947C18.2989 12.0197 17.6815 11.75 17.0455 11.75H16.5V9.75C16.5 8.26196 15.9205 6.83354 14.8891 5.78769C13.8576 4.74183 12.4489 4.15 11 4.15C9.55109 4.15 8.14236 4.74183 7.11091 5.78769C6.07946 6.83354 5.5 8.26196 5.5 9.75V11.75H4.95455C4.31849 11.75 3.70113 12.0197 3.23225 12.4947C2.76337 12.9696 2.5 13.5967 2.5 14.25C2.5 15.4183 3.65538 16.5 4.95455 16.5H8.5V14.75L11 12.25L13.5 14.75V16.5H17.0455C18.3446 16.5 19.5 15.4183 19.5 14.25Z" fill="currentColor" />
+                    <path d="M11 12.25L8.5 14.75V19.85H13.5V14.75L11 12.25Z" fill="currentColor"/>
+                </svg>
+                <h3 class="upload-title">MR Görüntüsünü Buraya Sürükleyin</h3>
+                <p class="upload-subtitle">veya dosya seçmek için tıklayın</p>
+            </label>
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+
+        <div id="uploading-state" class="state">
+             <div class="file-info-card">
+                <div class="file-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" fill="white"/></svg>
+                </div>
+                <div class="file-details">
+                    <div id="file-name" class="file-name">brain-scan.png</div>
+                    <div id="file-status" class="file-status">Analiz ediliyor...</div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+
+        <div id="error-state" class="state">
+            <div class="file-info-card">
+                <div class="file-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="white"/></svg>
+                </div>
+                <div class="file-details">
+                    <div class="file-name">Hatalı Dosya</div>
+                    <div class="file-status">Lütfen bir resim dosyası yükleyin.</div>
+                </div>
+            </div>
+            <button id="try-again-btn" class="btn btn-primary">Tekrar Dene</button>
+        </div>
+
+        <div id="result-state" class="state">
+            <img id="result-image-preview" src="#" alt="MR Görüntüsü">
+            <h3 class="results-title">Analiz Sonuçları</h3>
+            <div id="prediction-list" class="prediction-list">
+                </div>
+            <button id="scan-another-btn" class="btn btn-primary">Başka Görüntü Tara</button>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <script>
+        const URL = "./model/";
+        let model, maxPredictions;
+
+        // --- DOM Elements ---
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        
+        const states = {
+            default: document.getElementById('default-state'),
+            uploading: document.getElementById('uploading-state'),
+            error: document.getElementById('error-state'),
+            result: document.getElementById('result-state'),
+        };
+
+        const fileNameEl = document.getElementById('file-name');
+        const fileStatusEl = document.getElementById('file-status');
+        const progressBar = document.getElementById('progress-bar');
+        const resultImagePreview = document.getElementById('result-image-preview');
+        const predictionList = document.getElementById('prediction-list');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        const scanAnotherBtn = document.getElementById('scan-another-btn');
+
+        // --- State Management ---
+        function showState(stateName) {
+            Object.values(states).forEach(state => state.classList.remove('active'));
+            if (states[stateName]) {
+                states[stateName].classList.add('active');
+            }
+        }
+        
+        // --- Model Functions ---
+        async function init() {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+            try {
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+            } catch (error) {
+                console.error("Model yüklenemedi:", error);
+                // Burada kullanıcıya modelin yüklenemediğine dair bir uyarı gösterebiliriz.
+            }
+        }
+
+        async function predict(imageElement) {
+            const prediction = await model.predict(imageElement);
+            displayResults(prediction, imageElement.src);
+        }
+
+        function displayResults(prediction, imageSrc) {
+            resultImagePreview.src = imageSrc;
+            predictionList.innerHTML = '';
+
+            // 1%'den büyük ve en yüksek olasılıklı tahmini bul
+            const filteredPredictions = prediction
+                .map(p => ({ ...p, probability: p.probability * 100 }))
+                .filter(p => p.probability >= 1)
+                .sort((a, b) => b.probability - a.probability);
+
+            if (filteredPredictions.length === 0) {
+                 predictionList.innerHTML = '<p>Yeterli kesinlikte bir sonuç bulunamadı.</p>';
+                 showState('result');
+                 return;
+            }
+            
+            const topPrediction = filteredPredictions[0];
+
+            filteredPredictions.forEach((p, index) => {
+                const item = document.createElement('div');
+                item.classList.add('prediction-item');
+                if (p.className === topPrediction.className) {
+                    item.classList.add('top-prediction');
+                }
+                
+                const percentage = p.probability.toFixed(1);
+
+                item.innerHTML = `
+                    <div class="prediction-label">${p.className}</div>
+                    <div class="prediction-bar-bg">
+                        <div class="prediction-bar" style="width: 0;">${percentage}%</div>
+                    </div>
+                `;
+                predictionList.appendChild(item);
+
+                // Bar animasyonunu tetiklemek için küçük bir gecikme
+                setTimeout(() => {
+                    item.querySelector('.prediction-bar').style.width = `${percentage}%`;
+                }, 100 * (index + 1));
+            });
+
+            showState('result');
+        }
+
+        // --- Event Handlers ---
+        function handleFileSelect(file) {
+            if (file && file.type.startsWith("image/")) {
+                fileNameEl.textContent = file.name;
+                fileStatusEl.textContent = "Yükleniyor...";
+                progressBar.style.width = '0%';
+                showState('uploading');
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        // Simulating analysis progress
+                        fileStatusEl.textContent = "Analiz ediliyor...";
+                        let progress = 0;
+                        const interval = setInterval(() => {
+                            progress += 10;
+                            progressBar.style.width = progress + '%';
+                            if (progress >= 100) {
+                                clearInterval(interval);
+                                predict(img);
+                            }
+                        }, 150);
+                    };
+                };
+                reader.readAsDataURL(file);
+            } else {
+                showState('error');
+            }
+        }
+        
+        fileInput.addEventListener('change', (e) => handleFileSelect(e.control.files[0]));
         
         // Drag and Drop
         dropZone.addEventListener('dragover', (e) => {
@@ -419,4 +837,3 @@
 
 </body>
 </html>
-
