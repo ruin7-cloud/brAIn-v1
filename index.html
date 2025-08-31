@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - Tümör Analizi</title>
+    <title>brAIn - Toplu Analiz</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,85 +21,30 @@
             --warning-color: #FFC700;
             --border-color: rgba(255, 255, 255, 0.1);
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--primary-text);
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            text-align: center;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--primary-text); margin: 0; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
         .header { margin-bottom: 24px; }
         .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
         .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
-
-        .card {
-            background: var(--card-color);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            padding: 32px;
-            width: 100%;
-            max-width: 450px;
-            transition: all 0.3s ease;
-        }
-        
+        .card { background: var(--card-color); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid var(--border-color); padding: 32px; width: 100%; max-width: 480px; transition: all 0.3s ease; }
         .state { display: none; }
         .state.active { display: block; }
-        
-        .disclaimer {
-            font-size: 12px;
-            color: var(--warning-color);
-            background-color: rgba(255, 199, 0, 0.1);
-            border: 1px solid rgba(255, 199, 0, 0.2);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 24px;
-            text-align: left;
-            line-height: 1.5;
-        }
+        .disclaimer { font-size: 12px; color: var(--warning-color); background-color: rgba(255, 199, 0, 0.1); border: 1px solid rgba(255, 199, 0, 0.2); border-radius: 8px; padding: 10px; margin-top: 24px; text-align: left; line-height: 1.5; }
         .disclaimer strong { color: #FFD76B; }
-
         .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
         .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; }
-        
         .upload-options { display: flex; gap: 12px; margin-top: 24px; }
         .upload-options > * { flex: 1; }
-
-        #drop-zone {
-            border: 2px dashed var(--secondary-text);
-            border-radius: 16px;
-            padding: 20px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            box-sizing: border-box;
-        }
+        #drop-zone { border: 2px dashed var(--secondary-text); border-radius: 16px; padding: 20px; cursor: pointer; transition: background-color 0.3s ease; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; box-sizing: border-box; }
         #drop-zone:hover { background-color: rgba(255, 255, 255, 0.05); }
         #drop-zone svg { color: var(--accent-color); margin-bottom: 8px; }
         #drop-zone span { font-size: 14px; font-weight: 500; }
         input[type="file"] { display: none; }
-        
         .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; line-height: 1; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
         .btn-primary:hover { background-color: #3a3dc5; }
         .btn-secondary { background-color: rgba(0,0,0,0.2); color: var(--primary-text); }
         .btn-secondary:hover { background-color: rgba(0,0,0,0.4); }
         .btn svg { flex-shrink: 0; }
-
         .file-info-card { background-color: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
         .file-icon { flex-shrink: 0; padding: 8px; background-color: var(--accent-color); border-radius: 8px; }
         .file-details { overflow: hidden; }
@@ -108,91 +53,78 @@
         .progress-bar-container { width: 100%; height: 6px; background-color: rgba(0, 0, 0, 0.3); border-radius: 3px; margin-top: 12px; overflow: hidden; }
         .progress-bar { width: 0%; height: 100%; background-color: var(--accent-color); border-radius: 3px; transition: width 0.5s ease; }
         #error-state .file-icon { background-color: var(--error-color); }
-        
         #result-state { padding: 24px; }
         #result-content { }
-        #result-image-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 16px; margin-bottom: 16px; border: 2px solid var(--border-color); }
         .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
-        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px;}
         .prediction-item { display: flex; align-items: center; gap: 12px; }
         .prediction-label { flex-basis: 120px; flex-shrink: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .prediction-bar-bg { flex-grow: 1; height: 24px; background-color: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; }
-        .prediction-bar { width: 0; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: var(--primary-text); transition: width 0.8s ease-in-out; }
+        .prediction-bar { width: 0; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: var(--primary-text); transition: width 0.4s ease-in-out; }
         .prediction-item .prediction-bar { background-color: var(--accent-color); }
         .prediction-item.top-prediction .prediction-bar { background-color: var(--success-color); }
-        
         .tumor-info { margin-top: 20px; padding: 15px; background-color: rgba(0,0,0,0.2); border-radius: 12px; text-align: left; }
         .tumor-info h4 { margin: 0 0 8px 0; color: var(--success-color); }
         .tumor-info p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--secondary-text); }
         .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
-        
+        .detailed-results { margin-top: 20px; }
+        .thumbnail-gallery { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+        .thumbnail { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s; }
+        .thumbnail.active { border-color: var(--accent-color); }
         #camera-feed { width: 100%; max-width: 400px; border-radius: 16px; margin-bottom: 16px;}
     </style>
 </head>
 <body>
-
-    <header class="header">
-        <h1>brAIn</h1>
-        <p>Tumor Classifier</p>
-    </header>
-
+    <header class="header"><h1>brAIn</h1><p>Tumor Classifier</p></header>
     <main class="card" id="main-card">
         <div id="default-state" class="state active">
-            <h3 class="upload-title">Upload your MRI</h3>
-            <p class="upload-subtitle">Select a file or use your camera</p>
+            <h3 class="upload-title">Upload your MRI Scans</h3>
+            <p class="upload-subtitle">Select multiple files or use your camera</p>
             <div class="upload-options">
                 <label for="file-input" id="drop-zone">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg>
-                    <span>Choose File</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4...Z"/></svg>
+                    <span>Choose Files</span>
                 </label>
                 <button id="camera-btn" class="btn btn-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h...z"/></svg>
                     <span>Use Camera</span>
                 </button>
             </div>
-            <div class="disclaimer">
-                <strong>UYARI:</strong> Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.
-            </div>
-            <input type="file" id="file-input" accept="image/*">
+            <div class="disclaimer"><strong>UYARI:</strong> Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.</div>
+            <input type="file" id="file-input" accept="image/*" multiple>
         </div>
-
         <div id="uploading-state" class="state">
              <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg></div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2...z"/></svg></div>
                 <div class="file-details">
                     <div id="file-name" class="file-name"></div>
                     <div id="file-status" class="file-status"></div>
                 </div>
             </div>
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
-            </div>
+            <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
         </div>
-
         <div id="error-state" class="state">
             <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
-                <div class="file-details">
-                    <div class="file-name">Error</div>
-                    <div class="file-status">Please upload a valid image file.</div>
-                </div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.4...z"/></svg></div>
+                <div class="file-details"><div class="file-name">Error</div><div class="file-status">Please upload valid image files.</div></div>
             </div>
             <button id="try-again-btn" class="btn btn-primary">Try again</button>
         </div>
-        
         <div id="result-state" class="state">
             <div id="result-content">
-                <img id="result-image-preview" src="#" alt="MR Görüntüsü">
-                <h3 class="results-title">Analysis Results</h3>
+                <h3 class="results-title">Average Result</h3>
                 <div id="prediction-list" class="prediction-list"></div>
-                <div id="tumor-info" class="tumor-info"></div>
+                <div class="detailed-results">
+                    <h3 class="results-title" style="font-size: 18px;">Detailed Breakdown</h3>
+                    <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
+                </div>
+                <div id="tumor-info" class="tumor-info" style="display: none;"></div>
             </div>
             <div class="result-buttons">
                 <button id="pdf-btn" class="btn btn-secondary">Download Report</button>
                 <button id="scan-another-btn" class="btn btn-primary">Scan Another</button>
             </div>
         </div>
-
         <div id="camera-state" class="state">
             <video id="camera-feed" autoplay playsinline></video>
             <div class="result-buttons">
@@ -201,25 +133,15 @@
             </div>
         </div>
     </main>
-    
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-
     <script>
         const { jsPDF } = window.jspdf;
         const URL = "./model/";
         let model, webcamStream;
+        let batchResults = [];
 
-        const tumorDescriptions = {
-            "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "En agresif beyin tümörlerinden biridir. Hızlı büyüme ve yayılma eğilimindedir. Tedavisi genellikle cerrahi, radyoterapi ve kemoterapi kombinasyonunu içerir." },
-            "Menengiom": { name: "Menenjiyom", description: "Beyin ve omuriliği çevreleyen zarlardan (meninksler) kaynaklanan, genellikle yavaş büyüyen ve iyi huylu bir tümördür. Cerrahi ile tamamen çıkarılabilir." },
-            "Oligodendrogliom": { name: "Oligodendrogliom", description: "Beyindeki sinir hücrelerini destekleyen oligodendrosit hücrelerinden gelişen bir tümör türüdür. Genellikle yavaş büyür ancak zamanla kötü huylu hale gelebilir." },
-            "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "Beynin tabanında bulunan hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür. Hormon dengesizliklerine neden olabilir." },
-            "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "Doğuştan gelen bir kan damarı anomalisidir. Gerçek bir tümör değildir, ancak kanama veya nöbet gibi ciddi sorunlara yol açabilir." },
-            "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır. Yüksek basınç nedeniyle kanama riski taşır ve baş ağrısı veya nöbetlere neden olabilir." },
-            "Healthy": { name: "Sağlıklı (Healthy)", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir. Bu sonuç, kesin bir tıbbi tanı yerine geçmez." }
-        };
-
+        const tumorDescriptions = { "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "..." }, "Menengiom": { name: "Menenjiyom", description: "..." }, "Oligodendrogliom": { name: "Oligodendrogliom", description: "..." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "..." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "..." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "..." }, "Healthy": { name: "Sağlıklı (Healthy)", description: "..." } };
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
         const cameraBtn = document.getElementById('camera-btn');
@@ -229,175 +151,127 @@
         const scanAnotherBtn = document.getElementById('scan-another-btn');
         const tryAgainBtn = document.getElementById('try-again-btn');
         const cameraFeed = document.getElementById('camera-feed');
-        
-        const states = {
-            default: document.getElementById('default-state'),
-            uploading: document.getElementById('uploading-state'),
-            error: document.getElementById('error-state'),
-            result: document.getElementById('result-state'),
-            camera: document.getElementById('camera-state'),
-        };
-
+        const states = { default: document.getElementById('default-state'), uploading: document.getElementById('uploading-state'), error: document.getElementById('error-state'), result: document.getElementById('result-state'), camera: document.getElementById('camera-state'), };
         const fileNameEl = document.getElementById('file-name');
         const fileStatusEl = document.getElementById('file-status');
         const progressBar = document.getElementById('progress-bar');
-        const resultImagePreview = document.getElementById('result-image-preview');
         const predictionList = document.getElementById('prediction-list');
         const tumorInfoEl = document.getElementById('tumor-info');
+        const thumbnailGallery = document.getElementById('thumbnail-gallery');
 
-        function showState(stateName) {
-            Object.values(states).forEach(s => s.classList.remove('active'));
-            states[stateName]?.classList.add('active');
-        }
-
-        async function loadModel() {
-            try {
-                model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-            } catch (error) {
-                console.error("Model yüklenemedi:", error);
-                const errorEl = document.querySelector('#default-state .disclaimer');
-                if(errorEl) errorEl.innerHTML = '<strong>HATA:</strong> Model yüklenemedi. Lütfen internet bağlantınızı kontrol edip sayfayı yenileyin.';
-            }
-        }
+        function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
+        async function loadModel() { try { model = await tmImage.load(URL + "model.json", URL + "metadata.json"); } catch (error) { console.error("Model yüklenemedi:", error); const errEl = document.querySelector('#default-state .disclaimer'); if(errEl) errEl.innerHTML = '<strong>HATA:</strong> Model yüklenemedi. Sayfayı yenileyin.'; } }
         
-        function displayResults(prediction, imageSrc) {
-            resultImagePreview.src = imageSrc;
+        function renderPredictionUI(predictions, title) {
+            document.querySelector('#result-state .results-title').textContent = title;
             predictionList.innerHTML = '';
+            const filtered = predictions.filter(p => p.probability >= 1).sort((a, b) => b.probability - a.probability);
+            if (filtered.length === 0) { predictionList.innerHTML = '<p>No confident prediction.</p>'; tumorInfoEl.style.display = 'none'; return null; }
             
-            const filtered = prediction
-                .map(p => ({ ...p, probability: p.probability * 100 }))
-                .filter(p => p.probability >= 1)
-                .sort((a, b) => b.probability - a.probability);
+            const topPrediction = filtered[0];
+            filtered.forEach((p, index) => {
+                const item = document.createElement('div');
+                item.className = 'prediction-item ' + (index === 0 ? 'top-prediction' : '');
+                const percentage = p.probability.toFixed(1);
+                item.innerHTML = `<div class="prediction-label" title="${p.className}">${p.className}</div><div class="prediction-bar-bg"><div class="prediction-bar">${percentage}%</div></div>`;
+                predictionList.appendChild(item);
+                setTimeout(() => { item.querySelector('.prediction-bar').style.width = `${percentage}%`; }, 50);
+            });
+            return topPrediction;
+        }
 
-            if (filtered.length === 0) {
-                predictionList.innerHTML = '<p style="text-align: center; width: 100%;">Yeterli kesinlikte bir sonuç bulunamadı.</p>';
-                tumorInfoEl.style.display = 'none';
-            } else {
-                tumorInfoEl.style.display = 'block';
-                const topPrediction = filtered[0];
-                const info = tumorDescriptions[topPrediction.className];
-
-                filtered.forEach((p, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'prediction-item ' + (index === 0 ? 'top-prediction' : '');
-                    const percentage = p.probability.toFixed(1);
-                    item.innerHTML = `<div class="prediction-label" title="${p.className}">${p.className}</div><div class="prediction-bar-bg"><div class="prediction-bar">${percentage}%</div></div>`;
-                    predictionList.appendChild(item);
-                    setTimeout(() => { item.querySelector('.prediction-bar').style.width = `${percentage}%`; }, 100 * (index + 1));
-                });
-                
-                if (info) {
-                    tumorInfoEl.innerHTML = `<h4>${info.name}</h4><p>${info.description}</p>`;
-                } else {
-                     tumorInfoEl.style.display = 'none';
-                }
-            }
+        function displayBatchResults() {
+            const classTotals = {};
+            model.getClassLabels().forEach(label => { classTotals[label] = 0; });
+            batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
+            const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 }));
+            
+            const topPrediction = renderPredictionUI(averagePredictions, "Average Result");
+            const info = topPrediction ? tumorDescriptions[topPrediction.className] : null;
+            if (info) { tumorInfoEl.innerHTML = `<h4>${info.name}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
+            
+            thumbnailGallery.innerHTML = '';
+            batchResults.forEach((result, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = result.imageSrc;
+                thumb.className = 'thumbnail';
+                if (index === 0) thumb.classList.add('active');
+                thumb.onclick = () => {
+                    document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                    const individualTop = renderPredictionUI(result.predictions.map(p => ({...p, probability: p.probability * 100})), `Result for: Image ${index + 1}`);
+                    const individualInfo = individualTop ? tumorDescriptions[individualTop.className] : null;
+                    if (individualInfo) { tumorInfoEl.innerHTML = `<h4>${individualInfo.name}</h4><p>${individualInfo.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
+                };
+                thumbnailGallery.appendChild(thumb);
+            });
+            
             showState('result');
         }
-        
-        async function predict(elementToPredict) {
-            const prediction = await model.predict(elementToPredict);
-            
-            let imageSrc;
-            if (elementToPredict.tagName.toLowerCase() === 'canvas') {
-                imageSrc = elementToPredict.toDataURL('image/png');
-            } else {
-                imageSrc = elementToPredict.src;
-            }
-            
-            displayResults(prediction, imageSrc);
-        }
 
-        function analyzeImage(imageOrCanvasElement, sourceName = 'File') {
-            fileNameEl.textContent = `Analyzing from ${sourceName}...`;
-            fileStatusEl.textContent = "Analiz ediliyor...";
-            progressBar.style.width = '0%';
+        async function runBatchAnalysis(files) {
+            batchResults = [];
             showState('uploading');
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                fileNameEl.textContent = `Analyzing ${i + 1} of ${files.length}`;
+                fileStatusEl.textContent = file.name;
+                progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
 
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 20;
-                progressBar.style.width = progress + '%';
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    predict(imageOrCanvasElement);
-                }
-            }, 150);
+                const imageSrc = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
+                const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
+                
+                const predictions = await model.predict(img);
+                batchResults.push({ imageSrc, predictions });
+            }
+            displayBatchResults();
         }
 
-        function handleFile(file) {
-            if (!file || !file.type.startsWith("image/")) {
-                showState('error');
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => analyzeImage(img, file.name);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function startCamera() {
-            showState('camera');
-            try {
-                webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                cameraFeed.srcObject = webcamStream;
-            } catch (e) {
-                console.error("Kamera erişimi hatası:", e);
-                resetApp();
-            }
+        function handleFiles(files) {
+            if (!files || files.length === 0) { showState('error'); return; }
+            const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/"));
+            if (imageFiles.length === 0) { showState('error'); return; }
+            runBatchAnalysis(imageFiles);
         }
         
-        function stopCamera() {
-            if (webcamStream) {
-                webcamStream.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        function captureImage() {
+        async function handleCameraCapture() {
             const canvas = document.createElement('canvas');
             canvas.width = cameraFeed.videoWidth;
             canvas.height = cameraFeed.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
             stopCamera();
-            analyzeImage(canvas, 'Camera');
+            
+            const imageSrc = canvas.toDataURL('image/png');
+            const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
+            const predictions = await model.predict(img);
+            batchResults = [{ imageSrc, predictions }];
+            displayBatchResults();
         }
+
+        async function startCamera() { showState('camera'); try { webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); cameraFeed.srcObject = webcamStream; } catch (e) { console.error("Kamera erişimi hatası:", e); resetApp(); } }
+        function stopCamera() { if (webcamStream) { webcamStream.getTracks().forEach(track => track.stop()); } }
+        function resetApp() { stopCamera(); fileInput.value = ''; showState('default'); }
 
         async function generatePDF() {
             const content = document.getElementById('result-content');
-            const pdfButton = document.getElementById('pdf-btn');
-            pdfButton.textContent = 'Creating PDF...'; // Buton metnini değiştir
-
+            const btn = document.getElementById('pdf-btn');
+            btn.textContent = 'Creating PDF...';
             try {
                 const canvas = await html2canvas(content, { scale: 2, backgroundColor: null, useCORS: true });
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
                 pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
                 pdf.save('brAIn-analysis-report.pdf');
-            } catch (error) {
-                console.error('PDF oluşturma hatası:', error);
-                alert('PDF oluşturulurken bir hata oluştu.');
-            } finally {
-                pdfButton.textContent = 'Download Report'; // Buton metnini eski haline getir
-            }
+            } catch (error) { console.error('PDF hatası:', error); } finally { btn.textContent = 'Download Report'; }
         }
 
-        function resetApp() {
-            stopCamera();
-            fileInput.value = '';
-            showState('default');
-        }
-
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
-        dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.style.backgroundColor = 'transparent'; });
-        dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.backgroundColor = 'transparent'; handleFile(e.dataTransfer.files[0]); });
-        
+        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
+        dropZone.addEventListener('dragleave', e => { e.currentTarget.style.backgroundColor = 'transparent'; });
+        dropZone.addEventListener('drop', e => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'transparent'; handleFiles(e.dataTransfer.files); });
         cameraBtn.addEventListener('click', startCamera);
-        captureBtn.addEventListener('click', captureImage);
+        captureBtn.addEventListener('click', handleCameraCapture);
         cancelCameraBtn.addEventListener('click', resetApp);
         pdfBtn.addEventListener('click', generatePDF);
         tryAgainBtn.addEventListener('click', resetApp);
