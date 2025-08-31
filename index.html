@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     <style>
@@ -123,7 +122,7 @@
                 <li><strong>Teachable Machine:</strong> For training the custom image classification model.</li>
                 <li><strong>Google AI:</strong> Powered by Google's advanced AI research and infrastructure.</li>
             </ul>
-            <p><strong data-key="developer">Developer:</strong> <span data-key="yourName">[Isa Sahin]</span></p>
+            <p><strong data-key="developer">Developer:</strong> <span data-key="yourName">Isa Sahin</span></p>
             <p style="font-size: 12px; color: var(--warning-color);" data-key="aboutDisclaimer"><strong>Important:</strong> This tool is for educational and research purposes only and is not a substitute for professional medical advice.</p>
             <button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;" data-key="btnClose">Close</button>
         </div>
@@ -200,12 +199,12 @@
 
         const translations = {
             en: {
-                headerSubtitle: "Tumor Classifier", uploadTitle: "Upload your MRI Scans", uploadSubtitle: "Select multiple files or use your camera", btnChooseFiles: "Choose Files", btnUseCamera: "Use Camera", disclaimerTitle: "WARNING:", disclaimerText: "This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.", errorTitle: "Error", errorText: "Please upload valid image files.", btnTryAgain: "Try Again", avgResultTitle: "Average Result", detailedBreakdown: "Detailed Breakdown", resultForImage: "Result for: Image", noConfidentResult: "No confident prediction could be made.", btnDownloadReport: "Download Report", btnScanAnother: "Scan Another", btnCancel: "Cancel", btnCaptureImage: "Capture Image", analyzingText: "Analyzing", ofText: "of", fromCameraText: "from Camera", creatingPdf: "Creating PDF...", pdfReportTitle: "brAIn Analysis Report", pdfReportDate: "Report Date", pdfAnalysisId: "Analysis ID", pdfAvgResult: "Average Result", pdfDetailedBreakdown: "Detailed Breakdown", pdfImage: "Image", confidenceScore: "Overall Confidence Score", invalidImagesTitle: "Unsuitable for Analysis", invalidImagesText: "The following images were not recognized as brain MRIs and were excluded from the average result.", aboutTitle: "About this Project", aboutDesc1: "This tool is an AI-powered brain tumor classifier designed as a proof-of-concept. It utilizes a deep learning model to analyze brain MRI scans and predict one of seven categories, including several tumor types and healthy scans.", techUsed: "Technologies Used:", developer: "Developer:", yourName: "[Your Name Here]", aboutDisclaimer: "Important: This tool is for educational and research purposes only and is not a substitute for professional medical advice.", btnClose: "Close",
+                headerSubtitle: "Tumor Classifier", uploadTitle: "Upload your MRI Scans", uploadSubtitle: "Select multiple files or use your camera", btnChooseFiles: "Choose Files", btnUseCamera: "Use Camera", disclaimerTitle: "WARNING:", disclaimerText: "This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.", errorTitle: "Error", errorText: "Please upload valid image files.", btnTryAgain: "Try Again", avgResultTitle: "Average Result", detailedBreakdown: "Detailed Breakdown", resultForImage: "Result for: Image", noConfidentResult: "No confident prediction could be made.", btnDownloadReport: "Download Report", btnScanAnother: "Scan Another", btnCancel: "Cancel", btnCaptureImage: "Capture Image", analyzingText: "Analyzing", ofText: "of", fromCameraText: "from Camera", creatingPdf: "Creating PDF...", pdfReportTitle: "brAIn Analysis Report", pdfReportDate: "Report Date", pdfAnalysisId: "Analysis ID", pdfAvgResult: "Average Result", pdfDetailedBreakdown: "Detailed Breakdown", pdfImage: "Image", confidenceScore: "Overall Confidence Score", invalidImagesTitle: "Unsuitable for Analysis", invalidImagesText: "The following images were not recognized as brain MRIs and were excluded from the average result.", aboutTitle: "About this Project", aboutDesc1: "This tool is an AI-powered brain tumor classifier designed as a proof-of-concept. It utilizes a deep learning model to analyze brain MRI scans and predict one of seven categories, including several tumor types and healthy scans.", techUsed: "Technologies Used:", developer: "Developer:", yourName: "Isa Sahin", aboutDisclaimer: "Important: This tool is for educational and research purposes only and is not a substitute for professional medical advice.", btnClose: "Close",
                 methodologyText: "This report was generated using a deep learning model (TensorFlow.js & Teachable Machine) trained on over 4,000 brain MRI scans across 7 distinct classifications. The results indicate the model's prediction based on the provided images and should not be considered a definitive medical diagnosis.",
                 tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://en.wikipedia.org/wiki/Glioblastoma", description: "One of the most aggressive brain tumors..." }, "Menengiom": { name: "Meningioma", link: "https://en.wikipedia.org/wiki/Meningioma", description: "A generally slow-growing and benign tumor..." }, "Oligodendrogliom": { name: "Oligodendroglioma", link: "https://en.wikipedia.org/wiki/Oligodendroglioma", description: "A type of tumor that develops from oligodendrocytes..." }, "Pituitary": { name: "Pituitary Tumor", link: "https://en.wikipedia.org/wiki/Pituitary_adenoma", description: "A usually benign tumor that develops in the pituitary gland..." }, "CVM": { name: "Cerebral Vascular Malformation (CVM)", link: "https://en.wikipedia.org/wiki/Vascular_malformation", description: "A congenital blood vessel abnormality..." }, "AVM": { name: "Arteriovenous Malformation (AVM)", link: "https://en.wikipedia.org/wiki/Arteriovenous_malformation", description: "An abnormal connection between arteries and veins..." }, "Healthy": { name: "Healthy", link: "", description: "No tumor or significant anomaly was detected..." } }
             },
             tr: {
-                headerSubtitle: "Tümör Sınıflandırıcı", uploadTitle: "MR Taramalarınızı Yükleyin", uploadSubtitle: "Birden fazla dosya seçin veya kameranızı kullanın", btnChooseFiles: "Dosya Seç", btnUseCamera: "Kamera Kullan", disclaimerTitle: "UYARI:", disclaimerText: "Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.", errorTitle: "Hata", errorText: "Lütfen geçerli resim dosyaları yükleyin.", btnTryAgain: "Tekrar Dene", avgResultTitle: "Ortalama Sonuç", detailedBreakdown: "Detaylı Döküm", resultForImage: "Sonuç: Görüntü", noConfidentResult: "Yeterli kesinlikte bir sonuç bulunamadı.", btnDownloadReport: "Raporu İndir", btnScanAnother: "Başkasına Tara", btnCancel: "İptal", btnCaptureImage: "Fotoğraf Çek", analyzingText: "Analiz ediliyor", ofText: "/", fromCameraText: "Kameradan", creatingPdf: "PDF Oluşturuluyor...", pdfReportTitle: "brAIn Analiz Raporu", pdfReportDate: "Rapor Tarihi", pdfAnalysisId: "Analiz ID", pdfAvgResult: "Ortalama Sonuç", pdfDetailedBreakdown: "Detaylı Döküm", pdfImage: "Görüntü", confidenceScore: "Genel Güven Skoru", invalidImagesTitle: "Analiz İçin Uygun Değil", invalidImagesText: "Aşağıdaki görüntüler beyin MR'ı olarak algılanamadı ve ortalama sonuca dahil edilmedi.", aboutTitle: "Proje Hakkında", aboutDesc1: "Bu araç, konsept kanıtlama amacıyla tasarlanmış yapay zeka destekli bir beyin tümörü sınıflandırıcısıdır. Beyin MR'larını analiz etmek ve çeşitli tümör türleri ile sağlıklı taramalar dahil olmak üzere yedi kategoriden birini tahmin etmek için bir derin öğrenme modeli kullanır.", techUsed: "Kullanılan Teknolojiler:", developer: "Geliştirici:", yourName: "[Adınız Buraya]", aboutDisclaimer: "Önemli: Bu araç yalnızca eğitim ve araştırma amaçlıdır ve profesyonel tıbbi tavsiye yerine geçmez.", btnClose: "Kapat",
+                headerSubtitle: "Tümör Sınıflandırıcı", uploadTitle: "MR Taramalarınızı Yükleyin", uploadSubtitle: "Birden fazla dosya seçin veya kameranızı kullanın", btnChooseFiles: "Dosya Seç", btnUseCamera: "Kamera Kullan", disclaimerTitle: "UYARI:", disclaimerText: "Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.", errorTitle: "Hata", errorText: "Lütfen geçerli resim dosyaları yükleyin.", btnTryAgain: "Tekrar Dene", avgResultTitle: "Ortalama Sonuç", detailedBreakdown: "Detaylı Döküm", resultForImage: "Sonuç: Görüntü", noConfidentResult: "Yeterli kesinlikte bir sonuç bulunamadı.", btnDownloadReport: "Raporu İndir", btnScanAnother: "Başkasına Tara", btnCancel: "İptal", btnCaptureImage: "Fotoğraf Çek", analyzingText: "Analiz ediliyor", ofText: "/", fromCameraText: "Kameradan", creatingPdf: "PDF Oluşturuluyor...", pdfReportTitle: "brAIn Analiz Raporu", pdfReportDate: "Rapor Tarihi", pdfAnalysisId: "Analiz ID", pdfAvgResult: "Ortalama Sonuç", pdfDetailedBreakdown: "Detaylı Döküm", pdfImage: "Görüntü", confidenceScore: "Genel Güven Skoru", invalidImagesTitle: "Analiz İçin Uygun Değil", invalidImagesText: "Aşağıdaki görüntüler beyin MR'ı olarak algılanamadı ve ortalama sonuca dahil edilmedi.", aboutTitle: "Proje Hakkında", aboutDesc1: "Bu araç, konsept kanıtlama amacıyla tasarlanmış yapay zeka destekli bir beyin tümörü sınıflandırıcısıdır. Beyin MR'larını analiz etmek ve çeşitli tümör türleri ile sağlıklı taramalar dahil olmak üzere yedi kategoriden birini tahmin etmek için bir derin öğrenme modeli kullanır.", techUsed: "Kullanılan Teknolojiler:", developer: "Geliştirici:", yourName: "Isa Sahin", aboutDisclaimer: "Önemli: Bu araç yalnızca eğitim ve araştırma amaçlıdır ve profesyonel tıbbi tavsiye yerine geçmez.", btnClose: "Kapat",
                 methodologyText: "Bu rapor, 7 farklı sınıf üzerinde 4000'den fazla beyin MR görüntüsü ile eğitilmiş bir derin öğrenme modeli (TensorFlow.js & Teachable Machine) kullanılarak oluşturulmuştur. Sonuçlar, sağlanan görüntülere dayanarak modelin tahminini belirtir ve kesin bir tıbbi tanı olarak kabul edilmemelidir.",
                 tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://tr.wikipedia.org/wiki/Glioblastoma", description: "En agresif beyin tümörlerinden biridir..." }, "Menengiom": { name: "Menenjiyom", link: "https://tr.wikipedia.org/wiki/Menenjiyom", description: "Genellikle yavaş büyüyen ve iyi huylu bir tümördür..." }, "Oligodendrogliom": { name: "Oligodendrogliom", link: "https://tr.wikipedia.org/wiki/Oligodendrogliom", description: "Oligodendrosit hücrelerinden gelişen bir tümör türüdür..." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", link: "https://tr.wikipedia.org/wiki/Hipofiz_adenomu", description: "Hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür..." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", link: "https://tr.wikipedia.org/wiki/Vask%C3%BCler_malformasyon", description: "Doğuştan gelen bir kan damarı anomalisidir..." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", link: "https://tr.wikipedia.org/wiki/Arteriyoven%C3%B6z_malformasyon", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır..." }, "Healthy": { name: "Sağlıklı (Healthy)", link: "", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir..." } }
             }
@@ -235,25 +234,7 @@
         const invalidImagesEl = document.getElementById('invalid-images');
         const invalidThumbnailGallery = document.getElementById('invalid-thumbnail-gallery');
 
-        function changeLanguage(lang) {
-            if (!translations[lang]) return;
-            currentLang = lang;
-            localStorage.setItem('brain-lang', lang);
-            document.documentElement.lang = lang;
-            document.querySelectorAll('[data-key]').forEach(el => {
-                const key = el.dataset.key;
-                if (translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
-            document.querySelectorAll('.lang-link').forEach(link => {
-                link.classList.toggle('active', link.dataset.lang === lang);
-            });
-            if (states.result.classList.contains('active')) {
-                displayBatchResults();
-            }
-        }
-        
+        function changeLanguage(lang) { if (!translations[lang]) return; currentLang = lang; localStorage.setItem('brain-lang', lang); document.documentElement.lang = lang; document.querySelectorAll('[data-key]').forEach(el => { const key = el.dataset.key; if (translations[lang][key]) { el.textContent = translations[lang][key]; }}); document.querySelectorAll('.lang-link').forEach(link => { link.classList.toggle('active', link.dataset.lang === lang); }); if (states.result.classList.contains('active')) { displayBatchResults(); } }
         function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
         async function loadModel() { try { model = await tmImage.load(URL + "model.json", URL + "metadata.json"); } catch (error) { console.error("Model yüklenemedi:", error); const errEl = document.querySelector('[data-key="disclaimerText"]'); if(errEl) errEl.textContent = 'ERROR: The model could not be loaded. Please check your internet connection and refresh the page.'; } }
         
@@ -278,12 +259,7 @@
 
         function displayBatchResults() {
             if (batchResults.length === 0 && invalidImages.length > 0) {
-                 showState('result');
-                 mainResultsTitle.textContent = translations[currentLang].avgResultTitle;
-                 predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`;
-                 confidenceScoreEl.innerHTML = '';
-                 tumorInfoEl.style.display = 'none';
-                 document.getElementById('detailed-results').style.display = 'none';
+                 showState('result'); mainResultsTitle.textContent = translations[currentLang].avgResultTitle; predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; confidenceScoreEl.innerHTML = ''; tumorInfoEl.style.display = 'none'; document.getElementById('detailed-results').style.display = 'none';
             } else if (batchResults.length > 0) {
                 const classTotals = {};
                 model.getClassLabels().forEach(label => { classTotals[label] = 0; });
@@ -305,9 +281,7 @@
                         thumb.src = result.imageSrc;
                         thumb.className = 'thumbnail';
                         const resultTopClass = result.predictions.sort((a,b) => b.probability - a.probability)[0].className;
-                        if (resultTopClass !== majorityClass) {
-                            thumb.classList.add('outlier');
-                        }
+                        if (resultTopClass !== majorityClass) { thumb.classList.add('outlier'); }
                         if (index === 0) thumb.classList.add('active');
                         thumb.onclick = () => {
                             document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
@@ -327,56 +301,20 @@
             if(invalidImages.length > 0) {
                 invalidImagesEl.style.display = 'block';
                 invalidImagesEl.querySelector('h3').textContent = translations[currentLang].invalidImagesTitle;
-                invalidImages.forEach(imgSrc => {
-                    const thumb = document.createElement('img');
-                    thumb.src = imgSrc;
-                    thumb.className = 'thumbnail';
-                    invalidThumbnailGallery.appendChild(thumb);
-                });
+                invalidImages.forEach(imgSrc => { const thumb = document.createElement('img'); thumb.src = imgSrc; thumb.className = 'thumbnail'; invalidThumbnailGallery.appendChild(thumb); });
             } else {
                 invalidImagesEl.style.display = 'none';
             }
 
-            if (!currentResultId) {
-                currentResultId = `res_${Date.now()}`;
-                try {
-                    const dataToStore = { valid: batchResults, invalid: invalidImages };
-                    sessionStorage.setItem(currentResultId, JSON.stringify(dataToStore));
-                } catch(e) { console.error("Session storage error:", e); }
-            }
+            if (!currentResultId) { currentResultId = `res_${Date.now()}`; try { const dataToStore = { valid: batchResults, invalid: invalidImages }; sessionStorage.setItem(currentResultId, JSON.stringify(dataToStore)); } catch(e) { console.error("Session storage error:", e); } }
             showState('result');
         }
 
-        function calculateConfidence() {
-            if (batchResults.length === 0) return { overallScore: 0, majorityClass: null };
-            const topPredictions = batchResults.map(r => r.predictions.sort((a, b) => b.probability - a.probability)[0]);
-            const classCounts = topPredictions.reduce((acc, pred) => {
-                acc[pred.className] = (acc[pred.className] || 0) + 1;
-                return acc;
-            }, {});
-            const majorityClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b);
-            const consistency = (classCounts[majorityClass] / batchResults.length) * 100;
-            const avgCertainty = topPredictions.reduce((sum, pred) => sum + pred.probability, 0) / topPredictions.length * 100;
-            const overallScore = (consistency * 0.6) + (avgCertainty * 0.4);
-            return { overallScore, majorityClass };
-        }
-
-        function updateTumorInfo(topPrediction) {
-            const info = topPrediction ? translations[currentLang].tumorDescriptions[topPrediction.className] : null;
-            if (info) {
-                const learnMoreLink = info.link ? `<a href="${info.link}" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : '';
-                tumorInfoEl.innerHTML = `<h4>${info.name} ${learnMoreLink}</h4><p>${info.description}</p>`;
-                tumorInfoEl.style.display = 'block';
-            } else {
-                tumorInfoEl.style.display = 'none';
-            }
-        }
+        function calculateConfidence() { if (batchResults.length === 0) return { overallScore: 0, majorityClass: null }; const topPredictions = batchResults.map(r => r.predictions.sort((a, b) => b.probability - a.probability)[0]); const classCounts = topPredictions.reduce((acc, pred) => { acc[pred.className] = (acc[pred.className] || 0) + 1; return acc; }, {}); const majorityClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b); const consistency = (classCounts[majorityClass] / batchResults.length) * 100; const avgCertainty = topPredictions.reduce((sum, pred) => sum + pred.probability, 0) / topPredictions.length * 100; const overallScore = (consistency * 0.6) + (avgCertainty * 0.4); return { overallScore, majorityClass }; }
+        function updateTumorInfo(topPrediction) { const info = topPrediction ? translations[currentLang].tumorDescriptions[topPrediction.className] : null; if (info) { const learnMoreLink = info.link ? `<a href="${info.link}" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ''; tumorInfoEl.innerHTML = `<h4>${info.name} ${learnMoreLink}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; } }
 
         async function runBatchAnalysis(files) {
-            batchResults = [];
-            invalidImages = [];
-            currentResultId = null;
-            showState('uploading');
+            batchResults = []; invalidImages = []; currentResultId = null; showState('uploading');
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 fileNameEl.textContent = `${translations[currentLang].analyzingText} ${i + 1} ${translations[currentLang].ofText} ${files.length}`;
@@ -385,13 +323,8 @@
                 const imageSrc = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
                 const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
                 const predictions = await model.predict(img);
-                
                 const topPred = predictions.sort((a,b) => b.probability - a.probability)[0];
-                if(topPred.probability >= CONFIDENCE_THRESHOLD){
-                    batchResults.push({ imageSrc, predictions });
-                } else {
-                    invalidImages.push(imageSrc);
-                }
+                if(topPred.probability >= CONFIDENCE_THRESHOLD){ batchResults.push({ imageSrc, predictions }); } else { invalidImages.push(imageSrc); }
             }
             displayBatchResults();
         }
@@ -413,27 +346,92 @@
             const pageHeight = pdf.internal.pageSize.getHeight();
             const margin = 40;
             let yPos = margin;
+
+            pdf.setFontSize(24).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfReportTitle, margin, yPos);
+            yPos += 20;
+            pdf.setFontSize(10).setFont('helvetica', 'normal');
+            const dateStr = new Date().toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
+            pdf.text(`${translations[currentLang].pdfReportDate}: ${dateStr}`, margin, yPos);
+            pdf.text(`${translations[currentLang].pdfAnalysisId}: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
+            yPos += 10;
+            pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 20;
+
+            pdf.setFontSize(10).setFont('helvetica', 'bold');
+            pdf.text('Methodology:', margin, yPos);
+            yPos += 12;
+            pdf.setFontSize(8).setFont('helvetica', 'normal');
+            const methodologyLines = pdf.splitTextToSize(translations[currentLang].methodologyText, pageWidth - margin * 2);
+            pdf.text(methodologyLines, margin, yPos);
+            yPos += methodologyLines.length * 10 + 10;
+
+            const { overallScore } = calculateConfidence();
+            pdf.setFontSize(12).setFont('helvetica', 'bold');
+            pdf.text(`${translations[currentLang].confidenceScore}: ${overallScore.toFixed(1)}%`, margin, yPos);
+            yPos += 20;
+
+            pdf.setFontSize(16).setFont('helvetica', 'bold');
+            pdf.text(translations[currentLang].pdfAvgResult, margin, yPos);
+            yPos += 15;
+
+            const classTotals = {};
+            model.getClassLabels().forEach(label => { classTotals[label] = 0; });
+            batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
+            const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 })).filter(p => p.probability >= 1).sort((a,b) => b.probability - a.probability);
+
+            const barHeight = 14;
+            const barYMargin = 6;
+            const barStartX = margin + 100;
+            const barMaxWidth = pageWidth - barStartX - margin;
             
-            // PDF içeriğini JS ile dinamik olarak oluştur
-            const tempContainer = document.createElement('div');
-            // ... (önceki versiyondaki gibi geçici div oluşturma ve stil verme)
+            averagePredictions.forEach((p, index) => {
+                const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                const percentage = p.probability.toFixed(1);
+                pdf.setFontSize(8).setFont('helvetica', 'normal');
+                pdf.text(className, margin, yPos + barHeight / 1.5);
+                pdf.setFillColor(238, 238, 238);
+                pdf.rect(barStartX, yPos, barMaxWidth, barHeight, 'F');
+                pdf.setFillColor(index === 0 ? 0, 196, 140 : 74, 77, 230);
+                pdf.rect(barStartX, yPos, barMaxWidth * (p.probability / 100), barHeight, 'F');
+                pdf.setTextColor(255, 255, 255);
+                pdf.setFontSize(8).setFont('helvetica', 'bold');
+                pdf.text(`${percentage}%`, barStartX + barMaxWidth - 5, yPos + barHeight / 1.5, { align: 'right'});
+                pdf.setTextColor(0, 0, 0);
+                yPos += barHeight + barYMargin;
+            });
+            yPos += 10;
+            
+            if (batchResults.length > 1) {
+                if (yPos > pageHeight - 80) { pdf.addPage(); yPos = margin; }
+                pdf.setFontSize(16).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfDetailedBreakdown, margin, yPos); yPos += 15;
+                const thumbSize = 60;
+                for (let i = 0; i < batchResults.length; i++) {
+                    const result = batchResults[i];
+                    if (yPos + thumbSize + 10 > pageHeight - margin) { pdf.addPage(); yPos = margin; }
+                    pdf.addImage(result.imageSrc, 'PNG', margin, yPos, thumbSize, thumbSize);
+                    let textX = margin + thumbSize + 10;
+                    pdf.setFontSize(10).setFont('helvetica', 'bold'); pdf.text(`${translations[currentLang].pdfImage} ${i + 1}`, textX, yPos + 10);
+                    const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
+                    let predY = yPos + 22;
+                    for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
+                        const p = sortedPreds[j];
+                        const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                        pdf.setFontSize(8).setFont('helvetica', 'normal'); pdf.text(`${className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
+                        predY += 10;
+                    }
+                    yPos += thumbSize + 10;
+                }
+            }
 
-            // Canvas'a dönüştürme ve PDF'e ekleme
-            // ... (önceki versiyondaki gibi html2canvas ve pdf.addImage kullanımı)
-
-            // Filigran ve QR kod
-            const watermark1 = "FOR RESEARCH PURPOSES ONLY";
-            const watermark2 = "NOT FOR MEDICAL DIAGNOSIS";
+            const watermark1 = "FOR RESEARCH PURPOSES ONLY"; const watermark2 = "NOT FOR MEDICAL DIAGNOSIS";
             const totalPages = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
-                pdf.setFontSize(40).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.15})); // Opaklık artırıldı
-                
+                pdf.setFontSize(40).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.2})); // Opaklık artırıldı
                 pdf.text(watermark1, pageWidth / 2, pageHeight * 0.25, null, 45, 'center');
                 pdf.text(watermark2, pageWidth / 2, pageHeight * 0.75, null, -45, 'center');
                 pdf.text(watermark1, pageHeight * 0.25, pageHeight / 2, null, -45, 'center');
                 pdf.text(watermark2, pageWidth - (pageHeight * 0.25), pageHeight / 2, null, 45, 'center');
-
                 pdf.setGState(new pdf.GState({opacity: 1}));
 
                 if (i === totalPages) {
@@ -457,9 +455,7 @@
                 const savedResults = sessionStorage.getItem(resultId);
                 if (savedResults) {
                     const data = JSON.parse(savedResults);
-                    batchResults = data.valid || [];
-                    invalidImages = data.invalid || [];
-                    currentResultId = resultId;
+                    batchResults = data.valid || []; invalidImages = data.invalid || []; currentResultId = resultId;
                     displayBatchResults();
                 }
             }
@@ -487,4 +483,3 @@
     </script>
 </body>
 </html>
-
