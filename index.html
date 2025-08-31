@@ -2,7 +2,7 @@
 <html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - Multi-language Tumor Classifier</title>
+    <title>brAIn - Tumor Classifier</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -182,14 +182,33 @@
         const thumbnailGallery = document.getElementById('thumbnail-gallery');
         const mainResultsTitle = document.getElementById('main-results-title');
 
+        function translateElement(element, key) {
+            const translation = translations[currentLang][key];
+            if (translation) {
+                element.textContent = translation;
+            }
+        }
+
         function changeLanguage(lang) {
             if (!translations[lang]) return;
             currentLang = lang;
             localStorage.setItem('brain-lang', lang);
             document.documentElement.lang = lang;
-            document.querySelectorAll('[data-key]').forEach(el => { const key = el.dataset.key; if (translations[lang][key]) { el.textContent = translations[lang][key]; }});
-            document.querySelectorAll('.lang-link').forEach(link => { link.classList.toggle('active', link.dataset.lang === lang); });
-            if (states.result.classList.contains('active')) { displayBatchResults(); }
+
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.dataset.key;
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+
+            document.querySelectorAll('.lang-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.lang === lang);
+            });
+
+            if (states.result.classList.contains('active')) {
+                displayBatchResults();
+            }
         }
         
         function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
@@ -289,66 +308,162 @@
             const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 40;
+            const margin = 20; // Azaltılmış margin
             let yPos = margin;
 
+            // Header
             pdf.setFontSize(24).setFont('helvetica', 'bold');
             pdf.text(translations[currentLang].pdfReportTitle, margin, yPos);
-            yPos += 20;
+            yPos += 15;
             pdf.setFontSize(10).setFont('helvetica', 'normal');
-            pdf.text(`${translations[currentLang].pdfReportDate}: ${new Date().toLocaleString()}`, margin, yPos);
+            const dateStr = new Date().toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+            pdf.text(`${translations[currentLang].pdfReportDate}: ${dateStr}`, margin, yPos);
             pdf.text(`${translations[currentLang].pdfAnalysisId}: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
             yPos += 10;
             pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
-            yPos += 20;
+            yPos += 15;
 
+            // Average Result Section - Render to temporary div for html2canvas
             const tempContainer = document.createElement('div');
-            tempContainer.style.position = 'absolute'; tempContainer.style.left = '-9999px'; tempContainer.style.width = (pageWidth - margin * 2) + 'px'; tempContainer.style.color = 'black'; document.body.appendChild(tempContainer);
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.width = (pageWidth - margin * 2) + 'px';
+            tempContainer.style.color = 'black'; // html2canvas için metin rengini siyah yap
+            tempContainer.style.backgroundColor = 'white'; // html2canvas için arka plan rengini beyaz yap
+            tempContainer.style.padding = '10px'; // İç boşluk ekle
+            tempContainer.style.boxSizing = 'border-box';
+            document.body.appendChild(tempContainer);
             
-            const avgTitle = document.createElement('h3'); avgTitle.textContent = translations[currentLang].pdfAvgResult; tempContainer.appendChild(avgTitle);
-            const avgList = document.getElementById('prediction-list').cloneNode(true); tempContainer.appendChild(avgList);
-            const avgInfo = document.getElementById('tumor-info').cloneNode(true); tempContainer.appendChild(avgInfo);
+            // Ortalama sonuç başlığı
+            const avgResultTitleEl = document.createElement('h3');
+            avgResultTitleEl.textContent = translations[currentLang].pdfAvgResult;
+            avgResultTitleEl.style.fontSize = '18px';
+            avgResultTitleEl.style.fontWeight = 'bold';
+            avgResultTitleEl.style.marginBottom = '10px';
+            avgResultTitleEl.style.color = '#333';
+            tempContainer.appendChild(avgResultTitleEl);
 
-            const avgCanvas = await html2canvas(tempContainer, { scale: 2, useCORS: true});
-            document.body.removeChild(tempContainer);
+            // Prediction list (Ortalama Sonuç)
+            const currentPredictionList = document.getElementById('prediction-list');
+            const avgResultsContainer = document.createElement('div');
+            avgResultsContainer.style.marginBottom = '20px';
+            Array.from(currentPredictionList.children).forEach(item => {
+                const clonedItem = item.cloneNode(true);
+                clonedItem.style.display = 'flex';
+                clonedItem.style.alignItems = 'center';
+                clonedItem.style.marginBottom = '5px';
+                
+                const label = clonedItem.querySelector('.prediction-label');
+                if (label) {
+                    label.style.flexBasis = '120px';
+                    label.style.fontSize = '14px';
+                    label.style.color = '#555';
+                }
+
+                const barBg = clonedItem.querySelector('.prediction-bar-bg');
+                if (barBg) {
+                    barBg.style.flexGrow = '1';
+                    barBg.style.height = '20px';
+                    barBg.style.backgroundColor = '#eee';
+                    barBg.style.borderRadius = '4px';
+                    barBg.style.overflow = 'hidden';
+                }
+
+                const bar = clonedItem.querySelector('.prediction-bar');
+                if (bar) {
+                    bar.style.height = '100%';
+                    bar.style.backgroundColor = item.classList.contains('top-prediction') ? '#00C48C' : '#4A4DE6';
+                    bar.style.display = 'flex';
+                    bar.style.justifyContent = 'flex-end';
+                    bar.style.alignItems = 'center';
+                    bar.style.paddingRight = '8px';
+                    bar.style.fontSize = '12px';
+                    bar.style.fontWeight = 'bold';
+                    bar.style.color = 'white';
+                    bar.style.width = item.querySelector('.prediction-bar').style.width; // Mevcut genişliği koru
+                }
+                avgResultsContainer.appendChild(clonedItem);
+            });
+            tempContainer.appendChild(avgResultsContainer);
+
+            // Tumor info
+            const currentTumorInfo = document.getElementById('tumor-info');
+            if (currentTumorInfo && currentTumorInfo.style.display !== 'none') {
+                const clonedTumorInfo = currentTumorInfo.cloneNode(true);
+                clonedTumorInfo.style.borderTop = '1px solid #eee';
+                clonedTumorInfo.style.paddingTop = '15px';
+                clonedTumorInfo.style.marginTop = '15px';
+                clonedTumorInfo.querySelector('h4').style.color = '#00C48C';
+                clonedTumorInfo.querySelector('h4').style.fontSize = '16px';
+                clonedTumorInfo.querySelector('p').style.fontSize = '13px';
+                clonedTumorInfo.querySelector('p').style.color = '#666';
+                tempContainer.appendChild(clonedTumorInfo);
+            }
+
+            const avgCanvas = await html2canvas(tempContainer, { scale: 2, useCORS: true, backgroundColor: 'white' });
+            document.body.removeChild(tempContainer); // Geçici div'i kaldır
+
             const avgImgData = avgCanvas.toDataURL('image/png');
             const avgImgProps = pdf.getImageProperties(avgImgData);
             const avgImgHeight = (avgImgProps.height * (pageWidth - margin * 2)) / avgImgProps.width;
             pdf.addImage(avgImgData, 'PNG', margin, yPos, pageWidth - margin * 2, avgImgHeight);
             yPos += avgImgHeight + 20;
 
+            // Detailed Breakdown Section
             if (batchResults.length > 1) {
-                if (yPos > pageHeight - 100) { pdf.addPage(); yPos = margin; }
-                pdf.setFontSize(16).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfDetailedBreakdown, margin, yPos); yPos += 15;
+                if (yPos > pageHeight - 80) { pdf.addPage(); yPos = margin; }
+                pdf.setFontSize(16).setFont('helvetica', 'bold');
+                pdf.text(translations[currentLang].pdfDetailedBreakdown, margin, yPos);
+                yPos += 15;
+
+                const thumbnailWidth = 60;
+                const thumbnailHeight = 60;
+                const textStartX = margin + thumbnailWidth + 10;
+                const lineHeight = 10;
+
                 for (let i = 0; i < batchResults.length; i++) {
                     const result = batchResults[i];
-                    const thumbSize = 60;
-                    if (yPos + thumbSize + margin > pageHeight) { pdf.addPage(); yPos = margin; }
-                    pdf.addImage(result.imageSrc, 'PNG', margin, yPos, thumbSize, thumbSize);
-                    let textX = margin + thumbSize + 10;
-                    pdf.setFontSize(10).setFont('helvetica', 'bold'); pdf.text(`${translations[currentLang].pdfImage} ${i + 1}`, textX, yPos + 8);
+                    if (yPos + thumbnailHeight + 10 > pageHeight - margin) { // Sayfa sonuna yaklaşıyorsak yeni sayfa
+                        pdf.addPage();
+                        yPos = margin;
+                    }
+
+                    // Thumbnail image
+                    pdf.addImage(result.imageSrc, 'PNG', margin, yPos, thumbnailWidth, thumbnailHeight);
+
+                    // Image title
+                    pdf.setFontSize(10).setFont('helvetica', 'bold');
+                    pdf.text(`${translations[currentLang].pdfImage} ${i + 1}`, textStartX, yPos + lineHeight);
+
+                    // Predictions for individual image
                     const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
-                    let predY = yPos + 22;
-                    for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
+                    let predY = yPos + (lineHeight * 2); // Metin için başlangıç pozisyonu
+
+                    for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) { // İlk 3 tahmini göster
                         const p = sortedPreds[j];
                         const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
-                        pdf.setFontSize(8).setFont('helvetica', 'normal'); pdf.text(`${className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
-                        predY += 10;
+                        pdf.setFontSize(8).setFont('helvetica', 'normal');
+                        pdf.text(`${className}: ${(p.probability * 100).toFixed(1)}%`, textStartX, predY);
+                        predY += lineHeight;
                     }
-                    yPos += thumbSize + 10;
+                    yPos += thumbnailHeight + 10; // Bir sonraki thumbnail için y pozisyonunu güncelle
                 }
             }
             
+            // Watermarks and QR Code
             const watermark1 = "FOR RESEARCH PURPOSES ONLY";
             const watermark2 = "NOT FOR MEDICAL DIAGNOSIS";
             const totalPages = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
                 pdf.setFontSize(32).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.08}));
+                
+                // 4 köşeye çapraz filigranlar
                 pdf.text(watermark1, pageWidth / 2, pageHeight * 0.25, null, 45, 'center');
                 pdf.text(watermark2, pageWidth / 2, pageHeight * 0.75, null, -45, 'center');
-                pdf.text(watermark1, pageHeight * 0.25, pageHeight / 2, null, -45, 'center');
-                pdf.text(watermark2, pageWidth - (pageHeight * 0.25), pageHeight / 2, null, 45, 'center');
+                pdf.text(watermark1, pageWidth * 0.25, pageHeight / 2, null, -45, 'center');
+                pdf.text(watermark2, pageWidth * 0.75, pageHeight / 2, null, 45, 'center');
+
                 pdf.setGState(new pdf.GState({opacity: 1}));
 
                 if (i === totalPages) {
@@ -357,7 +472,7 @@
                     qr.addData(qrUrl);
                     qr.make();
                     const qrImgData = qr.createDataURL(4);
-                    pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 50, pageHeight - margin - 50, 50, 50);
+                    pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 50, pageHeight - margin - 50, 50, 50); // Sağ alt köşe
                 }
             }
 
