@@ -39,9 +39,13 @@ brAIn-v1/
 -TensorFlow.js
 -Teachable Machine
 
-## Future Improvements
+## Updates
 
--Support for DICOM MRI images.
--Improved accuracy with larger datasets.
--Better UI/UX enhancements.
-
+Project Update Notes: 08/31/2025
+The brAIn project has received a major update that significantly improves its interface and capabilities. The key new features in this release are:
+-New UI/UX Design: The project's interface has been completely revamped with a more modern and user-friendly design.
+-Multiple File and Camera Support: Multiple MR images can now be loaded simultaneously, or instant scans can be performed using the device camera.
+-Advanced Reporting System: Analysis results can now be downloaded as a professional PDF report containing watermarks, QR codes, and methodology explanations.
+-Overall Confidence Score: An “Overall Confidence Score” has been added to the results screen, indicating how confident the model is in its predictions.
+-Multi-Language Support: The interface offers Turkish and English language support, with English as the default language. Users can switch between languages instantly.
+-Project Information Screen: The “About” button added to the top right provides information about the project's purpose, the technologies used, and the developer.
