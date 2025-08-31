@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - v2.3</title>
+    <title>brAIn - v2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -185,13 +185,18 @@
         #pdf-render-container .pdf-disclaimer-warning {
             margin-top: 30px;
             padding: 10px;
-            background-color: rgba(255, 199, 0, 0.1);
-            border: 1px solid rgba(255, 199, 0, 0.2);
+            background-color: rgba(255, 0, 0, 0.1); /* Kırmızı arka plan */
+            border: 1px solid rgba(255, 0, 0, 0.2);
             border-radius: 8px;
             color: #CC0000; /* Kırmızı renk */
             font-weight: bold;
             font-size: 10px;
             text-align: center;
+        }
+        #pdf-render-container .pdf-qr-code-container {
+            text-align: center;
+            margin-top: 20px;
+            padding-bottom: 20px; /* Add padding for QR code */
         }
     </style>
 </head>
@@ -289,7 +294,7 @@
     <script>
         const { jsPDF } = window.jspdf;
         const URL = "./model/";
-        const CONFIDENCE_THRESHOLD = 0.50; // 50%
+        const CONFIDENCE_THRESHOLD = 0.70; // Changed to 70% to filter out non-MRI images like apples
         let model, webcamStream, currentResultId, currentLang;
         let batchResults = [], invalidImages = [];
 
@@ -319,7 +324,7 @@
         const captureBtn = document.getElementById('capture-btn');
         const cancelCameraBtn = document.getElementById('cancel-camera-btn');
         const pdfBtn = document.getElementById('pdf-btn');
-        const scanAnotherBtn = document = document.getElementById('scan-another-btn');
+        const scanAnotherBtn = document.getElementById('scan-another-btn');
         const tryAgainBtn = document.getElementById('try-again-btn');
         const cameraFeed = document.getElementById('camera-feed');
         const aboutBtn = document.getElementById('about-btn');
@@ -435,12 +440,28 @@
                 const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
                 const predictions = await model.predict(img);
                 const topPred = predictions.sort((a,b) => b.probability - a.probability)[0];
-                if(topPred.probability >= CONFIDENCE_THRESHOLD){ batchResults.push({ imageSrc, predictions }); } else { invalidImages.push(imageSrc); }
+                
+                // If top prediction probability is below threshold, treat as invalid
+                if(topPred.probability >= CONFIDENCE_THRESHOLD){ 
+                    batchResults.push({ imageSrc, predictions }); 
+                } else { 
+                    invalidImages.push(imageSrc); 
+                }
             }
             displayBatchResults();
         }
         function handleFiles(files) { if (!files || files.length === 0) { showState('error'); return; } const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/")); if (imageFiles.length === 0) { showState('error'); return; } runBatchAnalysis(imageFiles); }
-        async function handleCameraCapture() { const canvas = document.createElement('canvas'); canvas.width = cameraFeed.videoWidth; canvas.height = cameraFeed.videoHeight; canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height); stopCamera(); const imageSrc = canvas.toDataURL('image/png'); const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); }); const predictions = await model.predict(img); batchResults = [{ imageSrc, predictions }]; invalidImages = []; currentResultId = null; displayBatchResults(); }
+        async function handleCameraCapture() { const canvas = document.createElement('canvas'); canvas.width = cameraFeed.videoWidth; canvas.height = cameraFeed.videoHeight; canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height); stopCamera(); const imageSrc = canvas.toDataURL('image/png'); const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); }); const predictions = await model.predict(img); 
+            const topPred = predictions.sort((a,b) => b.probability - a.probability)[0];
+            if(topPred.probability >= CONFIDENCE_THRESHOLD){ 
+                batchResults = [{ imageSrc, predictions }]; 
+                invalidImages = [];
+            } else { 
+                batchResults = [];
+                invalidImages = [imageSrc]; 
+            }
+            currentResultId = null; displayBatchResults(); 
+        }
         async function startCamera() { showState('camera'); try { webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); cameraFeed.srcObject = webcamStream; } catch (e) { console.error("Kamera erişimi hatası:", e); resetApp(); } }
         function stopCamera() { if (webcamStream) { webcamStream.getTracks().forEach(track => track.stop()); } }
         function resetApp() { stopCamera(); fileInput.value = ''; showState('default'); }
@@ -523,6 +544,9 @@
 
                 pdfHTML += `<div class="pdf-disclaimer-warning">${translations[currentLang].pdfWarning}</div>`;
 
+                // QR code will be added at the end, centered
+                pdfHTML += `<div class="pdf-qr-code-container"></div>`;
+
                 renderContainer.innerHTML = pdfHTML;
                 
                 // Render and Save
@@ -566,7 +590,15 @@
                         const qrUrl = `${window.location.origin}${window.location.pathname}#${currentResultId}`;
                         qr.addData(qrUrl); qr.make();
                         const qrImgData = qr.createDataURL(4);
-                        pdf.addImage(qrImgData, 'PNG', pdfWidth - 40 - 50, pdfHeight - 40 - 50, 50, 50); // 40px margin from right/bottom
+                        // Place QR code centrally below the warning
+                        const qrSize = 50;
+                        const qrX = (pdfWidth - qrSize) / 2;
+                        // Calculate Y to be at the bottom, above default margin, and accounting for the warning
+                        const bottomMargin = 40; // Standard bottom margin from PDF
+                        const warningHeight = (translations[currentLang].pdfWarning.length / (pdfWidth / 6)) * 11 + 30; // Estimate warning text height + padding
+                        const qrY = pdfHeight - bottomMargin - qrSize - 20; // 20 for some spacing
+                        
+                        pdf.addImage(qrImgData, 'PNG', qrX, qrY, qrSize, qrSize);
                     }
                 }
                 
