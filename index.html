@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - Toplu Analiz</title>
+    <title>brAIn - Toplu Analiz v2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     <style>
         :root {
             --bg-color: #121829;
@@ -40,10 +43,11 @@
         #drop-zone span { font-size: 14px; font-weight: 500; }
         input[type="file"] { display: none; }
         .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; line-height: 1; }
+        .btn:disabled { background-color: #555; cursor: not-allowed; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
-        .btn-primary:hover { background-color: #3a3dc5; }
+        .btn-primary:hover:not(:disabled) { background-color: #3a3dc5; }
         .btn-secondary { background-color: rgba(0,0,0,0.2); color: var(--primary-text); }
-        .btn-secondary:hover { background-color: rgba(0,0,0,0.4); }
+        .btn-secondary:hover:not(:disabled) { background-color: rgba(0,0,0,0.4); }
         .btn svg { flex-shrink: 0; }
         .file-info-card { background-color: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
         .file-icon { flex-shrink: 0; padding: 8px; background-color: var(--accent-color); border-radius: 8px; }
@@ -55,7 +59,7 @@
         #error-state .file-icon { background-color: var(--error-color); }
         #result-state { padding: 24px; }
         #result-content { }
-        .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; text-align: left; }
         .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px;}
         .prediction-item { display: flex; align-items: center; gap: 12px; }
         .prediction-label { flex-basis: 120px; flex-shrink: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -69,8 +73,9 @@
         .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
         .detailed-results { margin-top: 20px; }
         .thumbnail-gallery { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-        .thumbnail { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s; }
-        .thumbnail.active { border-color: var(--accent-color); }
+        .thumbnail { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s; opacity: 0.7; }
+        .thumbnail:hover { opacity: 1; }
+        .thumbnail.active { border-color: var(--accent-color); opacity: 1; }
         #camera-feed { width: 100%; max-width: 400px; border-radius: 16px; margin-bottom: 16px;}
     </style>
 </head>
@@ -82,11 +87,11 @@
             <p class="upload-subtitle">Select multiple files or use your camera</p>
             <div class="upload-options">
                 <label for="file-input" id="drop-zone">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4...Z"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg>
                     <span>Choose Files</span>
                 </label>
                 <button id="camera-btn" class="btn btn-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h...z"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>
                     <span>Use Camera</span>
                 </button>
             </div>
@@ -95,30 +100,27 @@
         </div>
         <div id="uploading-state" class="state">
              <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2...z"/></svg></div>
-                <div class="file-details">
-                    <div id="file-name" class="file-name"></div>
-                    <div id="file-status" class="file-status"></div>
-                </div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg></div>
+                <div class="file-details"><div id="file-name" class="file-name"></div><div id="file-status" class="file-status"></div></div>
             </div>
             <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
         </div>
         <div id="error-state" class="state">
             <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.4...z"/></svg></div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
                 <div class="file-details"><div class="file-name">Error</div><div class="file-status">Please upload valid image files.</div></div>
             </div>
             <button id="try-again-btn" class="btn btn-primary">Try again</button>
         </div>
         <div id="result-state" class="state">
             <div id="result-content">
-                <h3 class="results-title">Average Result</h3>
+                <h3 id="main-results-title" class="results-title">Average Result</h3>
                 <div id="prediction-list" class="prediction-list"></div>
+                <div id="tumor-info" class="tumor-info"></div>
                 <div class="detailed-results">
-                    <h3 class="results-title" style="font-size: 18px;">Detailed Breakdown</h3>
+                    <h3 class="results-title" style="font-size: 18px; margin-top: 20px;">Detailed Breakdown</h3>
                     <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
                 </div>
-                <div id="tumor-info" class="tumor-info" style="display: none;"></div>
             </div>
             <div class="result-buttons">
                 <button id="pdf-btn" class="btn btn-secondary">Download Report</button>
@@ -133,15 +135,15 @@
             </div>
         </div>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <script>
         const { jsPDF } = window.jspdf;
         const URL = "./model/";
-        let model, webcamStream;
+        let model, webcamStream, currentResultId;
         let batchResults = [];
 
-        const tumorDescriptions = { "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "..." }, "Menengiom": { name: "Menenjiyom", description: "..." }, "Oligodendrogliom": { name: "Oligodendrogliom", description: "..." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "..." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "..." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "..." }, "Healthy": { name: "Sağlıklı (Healthy)", description: "..." } };
+        const tumorDescriptions = {
+            "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "En agresif beyin tümörlerinden biridir. Hızlı büyüme ve yayılma eğilimindedir. Tedavisi genellikle cerrahi, radyoterapi ve kemoterapi kombinasyonunu içerir." }, "Menengiom": { name: "Menenjiyom", description: "Beyin ve omuriliği çevreleyen zarlardan (meninksler) kaynaklanan, genellikle yavaş büyüyen ve iyi huylu bir tümördür. Cerrahi ile tamamen çıkarılabilir." }, "Oligodendrogliom": { name: "Oligodendrogliom", description: "Beyindeki sinir hücrelerini destekleyen oligodendrosit hücrelerinden gelişen bir tümör türüdür. Genellikle yavaş büyür ancak zamanla kötü huylu hale gelebilir." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "Beynin tabanında bulunan hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür. Hormon dengesizliklerine neden olabilir." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "Doğuştan gelen bir kan damarı anomalisidir. Gerçek bir tümör değildir, ancak kanama veya nöbet gibi ciddi sorunlara yol açabilir." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır. Yüksek basınç nedeniyle kanama riski taşır ve baş ağrısı veya nöbetlere neden olabilir." }, "Healthy": { name: "Sağlıklı (Healthy)", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir. Bu sonuç, kesin bir tıbbi tanı yerine geçmez." }
+        };
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
         const cameraBtn = document.getElementById('camera-btn');
@@ -158,15 +160,16 @@
         const predictionList = document.getElementById('prediction-list');
         const tumorInfoEl = document.getElementById('tumor-info');
         const thumbnailGallery = document.getElementById('thumbnail-gallery');
+        const mainResultsTitle = document.getElementById('main-results-title');
 
         function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
         async function loadModel() { try { model = await tmImage.load(URL + "model.json", URL + "metadata.json"); } catch (error) { console.error("Model yüklenemedi:", error); const errEl = document.querySelector('#default-state .disclaimer'); if(errEl) errEl.innerHTML = '<strong>HATA:</strong> Model yüklenemedi. Sayfayı yenileyin.'; } }
         
         function renderPredictionUI(predictions, title) {
-            document.querySelector('#result-state .results-title').textContent = title;
+            mainResultsTitle.textContent = title;
             predictionList.innerHTML = '';
             const filtered = predictions.filter(p => p.probability >= 1).sort((a, b) => b.probability - a.probability);
-            if (filtered.length === 0) { predictionList.innerHTML = '<p>No confident prediction.</p>'; tumorInfoEl.style.display = 'none'; return null; }
+            if (filtered.length === 0) { predictionList.innerHTML = '<p>No confident prediction.</p>'; return null; }
             
             const topPrediction = filtered[0];
             filtered.forEach((p, index) => {
@@ -186,27 +189,37 @@
             batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
             const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 }));
             
-            const topPrediction = renderPredictionUI(averagePredictions, "Average Result");
-            const info = topPrediction ? tumorDescriptions[topPrediction.className] : null;
-            if (info) { tumorInfoEl.innerHTML = `<h4>${info.name}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
+            const topAvgPrediction = renderPredictionUI(averagePredictions, "Average Result");
+            updateTumorInfo(topAvgPrediction);
             
             thumbnailGallery.innerHTML = '';
             batchResults.forEach((result, index) => {
                 const thumb = document.createElement('img');
                 thumb.src = result.imageSrc;
                 thumb.className = 'thumbnail';
-                if (index === 0) thumb.classList.add('active');
+                if (index === 0) thumb.classList.add('active'); // Select first one by default
                 thumb.onclick = () => {
                     document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
                     thumb.classList.add('active');
-                    const individualTop = renderPredictionUI(result.predictions.map(p => ({...p, probability: p.probability * 100})), `Result for: Image ${index + 1}`);
-                    const individualInfo = individualTop ? tumorDescriptions[individualTop.className] : null;
-                    if (individualInfo) { tumorInfoEl.innerHTML = `<h4>${individualInfo.name}</h4><p>${individualInfo.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
+                    const individualPredictions = result.predictions.map(p => ({...p, probability: p.probability * 100}));
+                    const topIndividual = renderPredictionUI(individualPredictions, `Result for: Image ${index + 1}`);
+                    updateTumorInfo(topIndividual);
                 };
                 thumbnailGallery.appendChild(thumb);
             });
+
+            // Save results for QR code linking
+            currentResultId = `res_${Date.now()}`;
+            try {
+                sessionStorage.setItem(currentResultId, JSON.stringify(batchResults));
+            } catch(e) { console.error("Session storage is full or unsupported."); }
             
             showState('result');
+        }
+
+        function updateTumorInfo(topPrediction) {
+            const info = topPrediction ? tumorDescriptions[topPrediction.className] : null;
+            if (info) { tumorInfoEl.innerHTML = `<h4>${info.name}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
         }
 
         async function runBatchAnalysis(files) {
@@ -238,8 +251,7 @@
             const canvas = document.createElement('canvas');
             canvas.width = cameraFeed.videoWidth;
             canvas.height = cameraFeed.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
             stopCamera();
             
             const imageSrc = canvas.toDataURL('image/png');
@@ -254,16 +266,101 @@
         function resetApp() { stopCamera(); fileInput.value = ''; showState('default'); }
 
         async function generatePDF() {
-            const content = document.getElementById('result-content');
             const btn = document.getElementById('pdf-btn');
             btn.textContent = 'Creating PDF...';
-            try {
-                const canvas = await html2canvas(content, { scale: 2, backgroundColor: null, useCORS: true });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                pdf.save('brAIn-analysis-report.pdf');
-            } catch (error) { console.error('PDF hatası:', error); } finally { btn.textContent = 'Download Report'; }
+            btn.disabled = true;
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            let yPos = margin;
+
+            // --- PDF Header ---
+            pdf.setFontSize(24).setFont('helvetica', 'bold');
+            pdf.text('brAIn Analysis Report', margin, yPos);
+            yPos += 20;
+            pdf.setFontSize(10).setFont('helvetica', 'normal');
+            pdf.text(`Report Date: ${new Date().toLocaleDateString()}`, margin, yPos);
+            pdf.text(`Analysis ID: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
+            yPos += 10;
+            pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 20;
+
+            // --- Average Result Section ---
+            const avgContent = document.querySelector('#result-content').cloneNode(true);
+            avgContent.querySelector('.detailed-results').remove(); // Detayları klondan kaldır
+            document.body.appendChild(avgContent);
+            const avgCanvas = await html2canvas(avgContent, { scale: 2, backgroundColor: '#121829', useCORS: true});
+            const avgImgData = avgCanvas.toDataURL('image/png');
+            const avgImgProps = pdf.getImageProperties(avgImgData);
+            const avgImgHeight = (avgImgProps.height * (pageWidth - margin * 2)) / avgImgProps.width;
+            pdf.addImage(avgImgData, 'PNG', margin, yPos, pageWidth - margin * 2, avgImgHeight);
+            yPos += avgImgHeight + 20;
+            document.body.removeChild(avgContent);
+            
+            // --- Detailed Breakdown Section ---
+            pdf.setFontSize(16).setFont('helvetica', 'bold');
+            pdf.text('Detailed Breakdown', margin, yPos);
+            yPos += 15;
+
+            for (let i = 0; i < batchResults.length; i++) {
+                const result = batchResults[i];
+                const imgData = result.imageSrc;
+                const thumbSize = 60;
+                if (yPos + thumbSize + margin > pageHeight) { pdf.addPage(); yPos = margin; }
+                
+                pdf.addImage(imgData, 'PNG', margin, yPos, thumbSize, thumbSize);
+                
+                let textX = margin + thumbSize + 10;
+                pdf.setFontSize(10).setFont('helvetica', 'bold');
+                pdf.text(`Image ${i + 1}`, textX, yPos + 8);
+                
+                const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
+                let predY = yPos + 22;
+                for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
+                    const p = sortedPreds[j];
+                    pdf.setFontSize(8).setFont('helvetica', 'normal');
+                    pdf.text(`${p.className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
+                    predY += 10;
+                }
+                yPos += thumbSize + 10;
+            }
+
+            // --- Watermark & QR Code ---
+            const totalPages = pdf.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                pdf.setFontSize(40).setTextColor(150, 150, 150, 0.2);
+                pdf.text('TANI VE TEDAVİ AMAÇLI KULLANILAMAZ', pageWidth / 2, pageHeight / 2, null, 45, 'center');
+                pdf.setTextColor(255, 255, 255);
+                
+                if (i === totalPages) {
+                    const qr = qrcode(0, 'L');
+                    const qrUrl = `${window.location.origin}${window.location.pathname}#${currentResultId}`;
+                    qr.addData(qrUrl);
+                    qr.make();
+                    const qrImgData = qr.createDataURL(3);
+                    pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 40, pageHeight - margin - 40, 40, 40);
+                }
+            }
+
+            pdf.save('brAIn-analysis-report.pdf');
+            btn.textContent = 'Download Report';
+            btn.disabled = false;
+        }
+
+        function checkUrlForResults() {
+            if(window.location.hash) {
+                const resultId = window.location.hash.substring(1);
+                const savedResults = sessionStorage.getItem(resultId);
+                if (savedResults) {
+                    batchResults = JSON.parse(savedResults);
+                    currentResultId = resultId;
+                    displayBatchResults();
+                }
+            }
         }
 
         fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
@@ -278,6 +375,7 @@
         scanAnotherBtn.addEventListener('click', resetApp);
 
         loadModel();
+        checkUrlForResults(); // Sayfa yüklendiğinde linki kontrol et
     </script>
 </body>
 </html>
