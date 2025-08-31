@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - v2.1</title>
+    <title>brAIn - v2.2</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -98,6 +98,17 @@
         .modal-content p { color: var(--secondary-text); }
         .modal-content ul { padding-left: 20px; color: var(--secondary-text); }
         .modal-content a { color: var(--accent-color); }
+
+        /* PDF RENDER için gizli alan stilleri */
+        #pdf-render-container { position: absolute; left: -9999px; top: 0; background: white; color: black; padding: 20px; font-family: sans-serif; width: 595px; /* A4 width in px at 72dpi */ }
+        #pdf-render-container h2 { font-size: 18px; margin-top: 0; }
+        #pdf-render-container h3 { font-size: 14px; }
+        #pdf-render-container p { font-size: 10px; }
+        #pdf-render-container .pdf-prediction-item { margin-bottom: 5px; }
+        #pdf-render-container .pdf-prediction-label { display: inline-block; width: 100px; font-size: 10px; }
+        #pdf-render-container .pdf-prediction-bar-bg { display: inline-block; width: 250px; height: 15px; background: #eee; border-radius: 4px; }
+        #pdf-render-container .pdf-prediction-bar { height: 100%; background: #4A4DE6; border-radius: 4px; }
+        #pdf-render-container .pdf-thumbnail { width: 50px; height: 50px; margin-right: 10px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -124,7 +135,7 @@
             </ul>
             <p><strong data-key="developer"></strong> <span data-key="yourName"></span></p>
             <p style="font-size: 12px; color: var(--warning-color);"><strong data-key="important"></strong> <span data-key="aboutDisclaimer"></span></p>
-            <button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;" data-key="btnClose">Close</button>
+            <button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;"><span data-key="btnClose"></span></button>
         </div>
     </div>
 
@@ -160,7 +171,7 @@
                 <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
                 <div class="file-details"><div class="file-name" data-key="errorTitle"></div><div class="file-status" data-key="errorText"></div></div>
             </div>
-            <button id="try-again-btn" class="btn btn-primary" data-key="btnTryAgain"></button>
+            <button id="try-again-btn" class="btn btn-primary"><span data-key="btnTryAgain"></span></button>
         </div>
         <div id="result-state" class="state">
             <div id="result-content">
@@ -174,6 +185,7 @@
                 </div>
                 <div id="invalid-images" class="invalid-images" style="display: none;">
                     <h3 class="results-title" style="font-size: 16px; color: var(--warning-color);" data-key="invalidImagesTitle"></h3>
+                    <p style="font-size: 12px; color: var(--secondary-text);" data-key="invalidImagesText"></p>
                     <div id="invalid-thumbnail-gallery" class="thumbnail-gallery"></div>
                 </div>
             </div>
@@ -185,8 +197,8 @@
         <div id="camera-state" class="state">
             <video id="camera-feed" autoplay playsinline></video>
             <div class="result-buttons">
-                <button id="cancel-camera-btn" class="btn btn-secondary" data-key="btnCancel"></button>
-                <button id="capture-btn" class="btn btn-primary" data-key="btnCaptureImage"></button>
+                <button id="cancel-camera-btn" class="btn btn-secondary"><span data-key="btnCancel"></span></button>
+                <button id="capture-btn" class="btn btn-primary"><span data-key="btnCaptureImage"></span></button>
             </div>
         </div>
     </main>
@@ -212,6 +224,7 @@
             }
         };
 
+        // --- DOM Element Selections ---
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
         const cameraBtn = document.getElementById('camera-btn');
@@ -236,33 +249,33 @@
         const invalidImagesEl = document.getElementById('invalid-images');
         const invalidThumbnailGallery = document.getElementById('invalid-thumbnail-gallery');
 
-        function setText(key, el) { const target = el || document.querySelector(`[data-key="${key}"]`); if (target) { target.textContent = translations[currentLang][key]; } }
-
+        // --- Core Functions ---
+        function setText(el, key) { if (el) { const text = translations[currentLang][key]; if(text !== undefined) el.textContent = text; } }
         function changeLanguage(lang) {
             if (!translations[lang]) return;
             currentLang = lang;
             localStorage.setItem('brain-lang', lang);
             document.documentElement.lang = lang;
-            document.querySelectorAll('[data-key]').forEach(el => setText(el.dataset.key, el));
+            document.querySelectorAll('[data-key]').forEach(el => setText(el, el.dataset.key));
             document.querySelectorAll('.lang-link').forEach(link => link.classList.toggle('active', link.dataset.lang === lang));
             if (states.result.classList.contains('active')) { displayBatchResults(); }
         }
-        
         function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
         async function loadModel() { try { model = await tmImage.load(URL + "model.json", URL + "metadata.json"); } catch (error) { console.error("Model yüklenemedi:", error); const errEl = document.querySelector('[data-key="disclaimerText"]'); if(errEl) errEl.textContent = 'ERROR: The model could not be loaded. Please check your internet connection and refresh the page.'; } }
         
+        // --- UI Rendering ---
         function renderPredictionUI(predictions, title) {
             mainResultsTitle.textContent = title;
             predictionList.innerHTML = '';
             const filtered = predictions.filter(p => p.probability >= 0.1).sort((a, b) => b.probability - a.probability);
             if (filtered.length === 0) { predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; return null; }
-            
             const topPrediction = filtered[0];
             filtered.forEach((p, index) => {
                 const item = document.createElement('div');
                 item.className = 'prediction-item ' + (index === 0 ? 'top-prediction' : '');
                 const percentage = p.probability.toFixed(1);
-                const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                const desc = translations[currentLang].tumorDescriptions[p.className];
+                const className = desc ? desc.name.split(' (')[0] : p.className;
                 item.innerHTML = `<div class="prediction-label" title="${className}">${className}</div><div class="prediction-bar-bg"><div class="prediction-bar">${percentage}%</div></div>`;
                 predictionList.appendChild(item);
                 setTimeout(() => { item.querySelector('.prediction-bar').style.width = `${percentage}%`; }, 50);
@@ -272,19 +285,16 @@
 
         function displayBatchResults() {
             if (batchResults.length === 0 && invalidImages.length > 0) {
-                 showState('result'); mainResultsTitle.textContent = translations[currentLang].avgResultTitle; predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; confidenceScoreEl.innerHTML = ''; tumorInfoEl.style.display = 'none'; document.getElementById('detailed-results').style.display = 'none';
+                showState('result'); mainResultsTitle.textContent = translations[currentLang].avgResultTitle; predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; confidenceScoreEl.innerHTML = ''; tumorInfoEl.style.display = 'none'; document.getElementById('detailed-results').style.display = 'none';
             } else if (batchResults.length > 0) {
                 const classTotals = {};
                 model.getClassLabels().forEach(label => { classTotals[label] = 0; });
                 batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
                 const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 }));
-                
                 const topAvgPrediction = renderPredictionUI(averagePredictions, translations[currentLang].avgResultTitle);
                 updateTumorInfo(topAvgPrediction);
-                
                 const { overallScore, majorityClass } = calculateConfidence();
                 confidenceScoreEl.innerHTML = `<strong>${translations[currentLang].confidenceScore}:</strong> <span>${overallScore.toFixed(1)}%</span>`;
-
                 thumbnailGallery.innerHTML = '';
                 const detailedResultsEl = document.getElementById('detailed-results');
                 if (batchResults.length > 1) {
@@ -309,16 +319,15 @@
                     detailedResultsEl.style.display = 'none';
                 }
             }
-            
             invalidThumbnailGallery.innerHTML = '';
             if(invalidImages.length > 0) {
                 invalidImagesEl.style.display = 'block';
                 invalidImagesEl.querySelector('h3').textContent = translations[currentLang].invalidImagesTitle;
+                invalidImagesEl.querySelector('p').textContent = translations[currentLang].invalidImagesText;
                 invalidImages.forEach(imgSrc => { const thumb = document.createElement('img'); thumb.src = imgSrc; thumb.className = 'thumbnail'; invalidThumbnailGallery.appendChild(thumb); });
             } else {
                 invalidImagesEl.style.display = 'none';
             }
-
             if (!currentResultId) { currentResultId = `res_${Date.now()}`; try { const dataToStore = { valid: batchResults, invalid: invalidImages }; sessionStorage.setItem(currentResultId, JSON.stringify(dataToStore)); } catch(e) { console.error("Session storage error:", e); } }
             showState('result');
         }
@@ -326,12 +335,13 @@
         function calculateConfidence() { if (batchResults.length === 0) return { overallScore: 0, majorityClass: null }; const topPredictions = batchResults.map(r => r.predictions.sort((a, b) => b.probability - a.probability)[0]); const classCounts = topPredictions.reduce((acc, pred) => { acc[pred.className] = (acc[pred.className] || 0) + 1; return acc; }, {}); const majorityClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b); const consistency = (classCounts[majorityClass] / batchResults.length) * 100; const avgCertainty = topPredictions.reduce((sum, pred) => sum + pred.probability, 0) / topPredictions.length * 100; const overallScore = (consistency * 0.6) + (avgCertainty * 0.4); return { overallScore, majorityClass }; }
         function updateTumorInfo(topPrediction) { const info = topPrediction ? translations[currentLang].tumorDescriptions[topPrediction.className] : null; if (info) { const learnMoreLink = info.link ? `<a href="${info.link}" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ''; tumorInfoEl.innerHTML = `<h4>${info.name} ${learnMoreLink}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; } }
 
+        // --- Analysis & File Handling ---
         async function runBatchAnalysis(files) {
             batchResults = []; invalidImages = []; currentResultId = null; showState('uploading');
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                fileNameEl.textContent = `${translations[currentLang].analyzingText} ${i + 1} ${translations[currentLang].ofText} ${files.length}`;
-                fileStatusEl.textContent = file.name;
+                setText(fileNameEl, 'analyzingText');
+                fileStatusEl.textContent = `${i + 1} ${translations[currentLang].ofText} ${files.length}: ${file.name}`;
                 progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
                 const imageSrc = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
                 const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
@@ -341,92 +351,75 @@
             }
             displayBatchResults();
         }
-
         function handleFiles(files) { if (!files || files.length === 0) { showState('error'); return; } const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/")); if (imageFiles.length === 0) { showState('error'); return; } runBatchAnalysis(imageFiles); }
         async function handleCameraCapture() { const canvas = document.createElement('canvas'); canvas.width = cameraFeed.videoWidth; canvas.height = cameraFeed.videoHeight; canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height); stopCamera(); const imageSrc = canvas.toDataURL('image/png'); const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); }); const predictions = await model.predict(img); batchResults = [{ imageSrc, predictions }]; invalidImages = []; currentResultId = null; displayBatchResults(); }
         async function startCamera() { showState('camera'); try { webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); cameraFeed.srcObject = webcamStream; } catch (e) { console.error("Kamera erişimi hatası:", e); resetApp(); } }
         function stopCamera() { if (webcamStream) { webcamStream.getTracks().forEach(track => track.stop()); } }
         function resetApp() { stopCamera(); fileInput.value = ''; showState('default'); }
 
+        // --- PDF Generation ---
         async function generatePDF() {
             const btn = document.getElementById('pdf-btn');
-            const btnSpan = btn.querySelector('span');
             btn.disabled = true;
-            if(btnSpan) btnSpan.textContent = translations[currentLang].creatingPdf;
+            setText(btn.querySelector('span'), 'creatingPdf');
 
             try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const margin = 40;
-                let yPos = margin;
+                const renderContainer = document.createElement('div');
+                renderContainer.id = 'pdf-render-container';
+                document.body.appendChild(renderContainer);
 
-                pdf.setFontSize(24).setFont('helvetica', 'bold');
-                pdf.text(translations[currentLang].pdfReportTitle, margin, yPos);
-                yPos += 20;
-                pdf.setFontSize(10).setFont('helvetica', 'normal');
-                const dateStr = new Date().toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
-                pdf.text(`${translations[currentLang].pdfReportDate}: ${dateStr}`, margin, yPos);
-                pdf.text(`${translations[currentLang].pdfAnalysisId}: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
-                yPos += 10;
-                pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
-                yPos += 20;
-
-                pdf.setFontSize(10).setFont('helvetica', 'bold'); pdf.text('Methodology:', margin, yPos);
-                yPos += 12;
-                pdf.setFontSize(8).setFont('helvetica', 'normal');
-                const methodologyLines = pdf.splitTextToSize(translations[currentLang].methodologyText, pageWidth - margin * 2);
-                pdf.text(methodologyLines, margin, yPos);
-                yPos += methodologyLines.length * 8 + 15;
-
-                const { overallScore } = calculateConfidence();
-                pdf.setFontSize(12).setFont('helvetica', 'bold'); pdf.text(`${translations[currentLang].confidenceScore}: ${overallScore.toFixed(1)}%`, margin, yPos);
-                yPos += 20;
-
-                pdf.setFontSize(16).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfAvgResult, margin, yPos);
-                yPos += 15;
-
-                const classTotals = {};
-                model.getClassLabels().forEach(label => { classTotals[label] = 0; });
-                batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
-                const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 })).filter(p => p.probability >= 1).sort((a,b) => b.probability - a.probability);
-
-                const barHeight = 14; const barYMargin = 6; const barStartX = margin + 100; const barMaxWidth = pageWidth - barStartX - margin;
+                // Build HTML for PDF
+                let pdfHTML = `<h2>${translations[currentLang].pdfReportTitle}</h2><p>${translations[currentLang].pdfReportDate}: ${new Date().toLocaleString(currentLang === 'tr' ? 'tr-TR' : 'en-US')}</p><p>${translations[currentLang].pdfAnalysisId}: ${currentResultId}</p><hr>`;
+                pdfHTML += `<p><strong>Methodology:</strong><br>${translations[currentLang].methodologyText}</p><hr>`;
                 
-                averagePredictions.forEach((p, index) => {
-                    if (yPos + barHeight > pageHeight - margin) { pdf.addPage(); yPos = margin; }
-                    const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
-                    const percentage = p.probability.toFixed(1);
-                    pdf.setFontSize(8).setFont('helvetica', 'normal'); pdf.text(className, margin, yPos + barHeight / 1.5);
-                    pdf.setFillColor(238, 238, 238); pdf.rect(barStartX, yPos, barMaxWidth, barHeight, 'F');
-                    pdf.setFillColor(index === 0 ? 0, 196, 140 : 74, 77, 230); pdf.rect(barStartX, yPos, barMaxWidth * (p.probability / 100), barHeight, 'F');
-                    pdf.setTextColor(255, 255, 255); pdf.setFontSize(8).setFont('helvetica', 'bold');
-                    if (p.probability > 15) { pdf.text(`${percentage}%`, barStartX + barMaxWidth * (p.probability / 100) - 5, yPos + barHeight / 1.5, { align: 'right'}); }
-                    pdf.setTextColor(0, 0, 0); yPos += barHeight + barYMargin;
-                });
-                yPos += 10;
+                if (batchResults.length > 0) {
+                    const { overallScore } = calculateConfidence();
+                    pdfHTML += `<h3>${translations[currentLang].confidenceScore}: ${overallScore.toFixed(1)}%</h3>`;
+                    pdfHTML += `<h3>${translations[currentLang].pdfAvgResult}</h3>`;
+                    const classTotals = {}; model.getClassLabels().forEach(label => { classTotals[label] = 0; }); batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
+                    const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 })).filter(p => p.probability >= 1).sort((a,b) => b.probability - a.probability);
+                    
+                    averagePredictions.forEach((p, index) => {
+                        const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                        const bgColor = index === 0 ? 'var(--success-color)' : 'var(--accent-color)';
+                        pdfHTML += `<div class="pdf-prediction-item"><span class="pdf-prediction-label">${className}</span><div class="pdf-prediction-bar-bg"><div class="pdf-prediction-bar" style="width: ${p.probability.toFixed(1)}%; background-color: ${bgColor};"></div></div></div>`;
+                    });
+
+                    const topInfo = translations[currentLang].tumorDescriptions[averagePredictions[0].className];
+                    if (topInfo) pdfHTML += `<div class="tumor-info"><h4>${topInfo.name}</h4><p>${topInfo.description}</p></div>`;
+                }
                 
                 if (batchResults.length > 1) {
-                    if (yPos > pageHeight - 80) { pdf.addPage(); yPos = margin; }
-                    pdf.setFontSize(16).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfDetailedBreakdown, margin, yPos); yPos += 15;
-                    const thumbSize = 60;
-                    for (let i = 0; i < batchResults.length; i++) {
-                        const result = batchResults[i];
-                        if (yPos + thumbSize + 10 > pageHeight - margin) { pdf.addPage(); yPos = margin; }
-                        pdf.addImage(result.imageSrc, 'PNG', margin, yPos, thumbSize, thumbSize);
-                        let textX = margin + thumbSize + 10;
-                        pdf.setFontSize(10).setFont('helvetica', 'bold'); pdf.text(`${translations[currentLang].pdfImage} ${i + 1}`, textX, yPos + 10);
-                        const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
-                        let predY = yPos + 22;
-                        for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
-                            const p = sortedPreds[j];
-                            const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
-                            pdf.setFontSize(8).setFont('helvetica', 'normal'); pdf.text(`${className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
-                            predY += 10;
-                        }
-                        yPos += thumbSize + 10;
-                    }
+                    pdfHTML += `<hr><h3>${translations[currentLang].pdfDetailedBreakdown}</h3>`;
+                    batchResults.forEach((result, index) => {
+                        const topPred = result.predictions.sort((a,b) => b.probability - a.probability)[0];
+                        const className = translations[currentLang].tumorDescriptions[topPred.className]?.name.split(' (')[0] || topPred.className;
+                        pdfHTML += `<div><img src="${result.imageSrc}" class="pdf-thumbnail"> <strong>${translations[currentLang].pdfImage} ${index+1}:</strong> ${className} (${(topPred.probability*100).toFixed(1)}%)</div>`;
+                    });
+                }
+                renderContainer.innerHTML = pdfHTML;
+                
+                // Render and Save
+                const canvas = await html2canvas(renderContainer, { scale: 2, useCORS: true });
+                document.body.removeChild(renderContainer);
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgProps = pdf.getImageProperties(imgData);
+                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    heightLeft -= pdfHeight;
                 }
 
                 const watermark1 = "FOR RESEARCH PURPOSES ONLY"; const watermark2 = "NOT FOR MEDICAL DIAGNOSIS";
@@ -434,33 +427,33 @@
                 for (let i = 1; i <= totalPages; i++) {
                     pdf.setPage(i);
                     pdf.setFontSize(40).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.15}));
-                    pdf.text(watermark1, pageWidth / 2, pageHeight * 0.25, null, 45, 'center');
-                    pdf.text(watermark2, pageWidth / 2, pageHeight * 0.75, null, -45, 'center');
-                    pdf.text(watermark1, pageHeight * 0.25, pageHeight / 2, null, -45, 'center');
-                    pdf.text(watermark2, pageWidth - (pageHeight * 0.25), pageHeight / 2, null, 45, 'center');
+                    pdf.text(watermark1, pdfWidth / 2, pdfHeight * 0.25, null, 45, 'center');
+                    pdf.text(watermark2, pdfWidth / 2, pdfHeight * 0.75, null, -45, 'center');
+                    pdf.text(watermark1, pdfHeight * 0.25, pdfHeight / 2, null, -45, 'center');
+                    pdf.text(watermark2, pdfWidth - (pdfHeight * 0.25), pdfHeight / 2, null, 45, 'center');
                     pdf.setGState(new pdf.GState({opacity: 1}));
 
                     if (i === totalPages) {
                         const qr = qrcode(0, 'L');
                         const qrUrl = `${window.location.origin}${window.location.pathname}#${currentResultId}`;
-                        qr.addData(qrUrl);
-                        qr.make();
+                        qr.addData(qrUrl); qr.make();
                         const qrImgData = qr.createDataURL(4);
-                        pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 50, pageHeight - margin - 50, 50, 50);
+                        pdf.addImage(qrImgData, 'PNG', pdfWidth - 40 - 50, pdfHeight - 40 - 50, 50, 50);
                     }
                 }
-
+                
                 pdf.save('brAIn-analysis-report.pdf');
 
             } catch (error) {
                 console.error("PDF oluşturma hatası:", error);
-                alert("PDF oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.");
+                alert("PDF oluşturulurken bir hata oluştu.");
             } finally {
-                if(btnSpan) btnSpan.textContent = translations[currentLang].btnDownloadReport;
+                setText(btn.querySelector('span'), 'btnDownloadReport');
                 btn.disabled = false;
             }
         }
 
+        // --- Event Listeners & Initializers ---
         function checkUrlForResults() {
             if(window.location.hash) {
                 const resultId = window.location.hash.substring(1);
