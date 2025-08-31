@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --bg-color: #121829;
@@ -16,6 +18,7 @@
             --accent-color: #4A4DE6;
             --error-color: #FF5B5B;
             --success-color: #00C48C;
+            --warning-color: #FFC700;
             --border-color: rgba(255, 255, 255, 0.1);
         }
 
@@ -34,21 +37,9 @@
             text-align: center;
         }
 
-        .header {
-            margin-bottom: 32px;
-        }
-
-        .header h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .header p {
-            font-size: 16px;
-            color: var(--secondary-text);
-            margin: 4px 0 0 0;
-        }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
+        .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
 
         .card {
             background: var(--card-color);
@@ -58,35 +49,57 @@
             border: 1px solid var(--border-color);
             padding: 32px;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             transition: all 0.3s ease;
         }
         
         .state { display: none; }
         .state.active { display: block; }
+        
+        /* --- YENİ --- Uyarı Metni */
+        .disclaimer {
+            font-size: 12px;
+            color: var(--warning-color);
+            background-color: rgba(255, 199, 0, 0.1);
+            border: 1px solid rgba(255, 199, 0, 0.2);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 24px;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .disclaimer strong { color: #FFD76B; }
+
+        .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
+        .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; }
+        
+        .upload-options { display: flex; gap: 12px; margin-top: 24px; }
+        .upload-options > * { flex: 1; }
 
         #drop-zone {
             border: 2px dashed var(--secondary-text);
             border-radius: 16px;
-            padding: 40px 20px;
+            padding: 20px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            box-sizing: border-box;
         }
         #drop-zone:hover { background-color: rgba(255, 255, 255, 0.05); }
-        #drop-zone svg { color: var(--accent-color); margin-bottom: 16px; }
-        .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
-        .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 8px; }
+        #drop-zone svg { color: var(--accent-color); margin-bottom: 8px; }
         input[type="file"] { display: none; }
+        
+        .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
+        .btn-primary:hover { background-color: #3a3dc5; }
+        .btn-secondary { background-color: rgba(0,0,0,0.2); color: var(--primary-text); }
+        .btn-secondary:hover { background-color: rgba(0,0,0,0.4); }
 
-        .file-info-card {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-align: left;
-        }
+        .file-info-card { background-color: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
         .file-icon { flex-shrink: 0; padding: 8px; background-color: var(--accent-color); border-radius: 8px; }
         .file-details { overflow: hidden; }
         .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -94,188 +107,23 @@
         .progress-bar-container { width: 100%; height: 6px; background-color: rgba(0, 0, 0, 0.3); border-radius: 3px; margin-top: 12px; overflow: hidden; }
         .progress-bar { width: 0%; height: 100%; background-color: var(--accent-color); border-radius: 3px; transition: width 0.5s ease; }
         #error-state .file-icon { background-color: var(--error-color); }
-
-        #result-image-preview { width: 150px; height: 150px; object-fit: cover; border-radius: 16px; margin-bottom: 24px; border: 2px solid var(--border-color); }
-        .results-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
-        .prediction-list { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+        
+        #result-state .card, #camera-state .card { padding: 16px; }
+        #result-content { /* PDF için */ }
+        #result-image-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 16px; margin-bottom: 16px; border: 2px solid var(--border-color); }
+        .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
         .prediction-item { display: flex; align-items: center; gap: 12px; }
         .prediction-label { flex-basis: 120px; flex-shrink: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .prediction-bar-bg { flex-grow: 1; height: 24px; background-color: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; }
         .prediction-bar { width: 0; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: var(--primary-text); transition: width 0.8s ease-in-out; }
         .prediction-item .prediction-bar { background-color: var(--accent-color); }
         .prediction-item.top-prediction .prediction-bar { background-color: var(--success-color); }
-
-        .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; margin-top: 24px; }
-        .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
-        .btn-primary:hover { background-color: #3a3dc5; }
-    </style>
-</head>
-<body>
-
-    <header class="header">
-        <h1>brAIn</h1>
-        <p>Tumor Classifier</p>
-    </header>
-
-    <main class="card">
-        <div id="default-state" class="state active">
-            <h3 class="upload-title">Upload your MRI</h3>
-            <p class="upload-subtitle">Drag & drop or click to upload</p>
-            <label for="file-input" id="drop-zone" style="margin-top: 24px;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.5 14.25C19.5 13.5967 19.2366 12.9696 18.7678 12.4947C18.2989 12.0197 17.6815 11.75 17.0455 11.75H16.5V9.75C16.5 8.26196 15.9205 6.83354 14.8891 5.78769C13.8576 4.74183 12.4489 4.15 11 4.15C9.55109 4.15 8.14236 4.74183 7.11091 5.78769C6.07946 6.83354 5.5 8.26196 5.5 9.75V11.75H4.95455C4.31849 11.75 3.70113 12.0197 3.23225 12.4947C2.76337 12.9696 2.5 13.5967 2.5 14.25C2.5 15.4183 3.65538 16.5 4.95455 16.5H8.5V14.75L11 12.25L13.5 14.75V16.5H17.0455C18.3446 16.5 19.5 15.4183 19.5 14.25Z" fill="currentColor" /><path d="M11 12.25L8.5 14.75V19.85H13.5V14.75L11 12.25Z" fill="currentColor"/></svg>
-            </label>
-            <input type="file" id="file-input" accept="image/*">
-        </div>
-
-        <div id="uploading-state" class="state">
-             <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" fill="white"/></svg></div>
-                <div class="file-details">
-                    <div id="file-name" class="file-name"></div>
-                    <div id="file-status" class="file-status"></div>
-                </div>
-            </div>
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
-            </div>
-        </div>
-
-        <div id="error-state" class="state">
-            <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="white"/></svg></div>
-                <div class="file-details">
-                    <div class="file-name">Error</div>
-                    <div class="file-status">Please upload a valid image file.</div>
-                </div>
-            </div>
-            <button id="try-again-btn" class="btn btn-primary">Try again</button>
-        </div>
-
-        <div id="result-state" class="state">
-            <img id="result-image-preview" src="#" alt="MR Görüntüsü">
-            <h3 class="results-title">Analysis Results</h3>
-            <div id="prediction-list" class="prediction-list"></div>
-            <button id="scan-another-btn" class="btn btn-primary">Scan another image</button>
-        </div>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-
-    <script>
-        const URL = "./model/";
-        let model;
-
-        const fileInput = document.getElementById('file-input');
-        const dropZone = document.getElementById('drop-zone');
-        const states = {
-            default: document.getElementById('default-state'),
-            uploading: document.getElementById('uploading-state'),
-            error: document.getElementById('error-state'),
-            result: document.getElementById('result-state'),
-        };
-        const fileNameEl = document.getElementById('file-name');
-        const fileStatusEl = document.getElementById('file-status');
-        const progressBar = document.getElementById('progress-bar');
-        const resultImagePreview = document.getElementById('result-image-preview');
-        const predictionList = document.getElementById('prediction-list');
-        const tryAgainBtn = document.getElementById('try-again-btn');
-        const scanAnotherBtn = document.getElementById('scan-another-btn');
-
-        function showState(stateName) {
-            Object.values(states).forEach(state => state.classList.remove('active'));
-            states[stateName]?.classList.add('active');
-        }
-
-        async function loadModel() {
-            try {
-                model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-            } catch (error) {
-                console.error("Model yüklenemedi:", error);
-                states.default.innerHTML = '<p style="color: var(--error-color);">Model could not be loaded. Please refresh the page.</p>';
-            }
-        }
-
-        async function predict(imageElement) {
-            const prediction = await model.predict(imageElement);
-            displayResults(prediction, imageElement.src);
-        }
-
-        function displayResults(prediction, imageSrc) {
-            resultImagePreview.src = imageSrc;
-            predictionList.innerHTML = '';
-            const filtered = prediction
-                .map(p => ({ ...p, probability: p.probability * 100 }))
-                .filter(p => p.probability >= 1)
-                .sort((a, b) => b.probability - a.probability);
-
-            if (filtered.length === 0) {
-                predictionList.innerHTML = '<p style="text-align: center; width: 100%;">No confident prediction could be made.</p>';
-            } else {
-                filtered.forEach((p, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'prediction-item';
-                    if (index === 0) item.classList.add('top-prediction');
-                    const percentage = p.probability.toFixed(1);
-                    item.innerHTML = `
-                        <div class="prediction-label" title="${p.className}">${p.className}</div>
-                        <div class="prediction-bar-bg">
-                            <div class="prediction-bar">${percentage}%</div>
-                        </div>
-                    `;
-                    predictionList.appendChild(item);
-                    setTimeout(() => {
-                        item.querySelector('.prediction-bar').style.width = `${percentage}%`;
-                    }, 100 * (index + 1));
-                });
-            }
-            showState('result');
-        }
-
-        function handleFile(file) {
-            if (!file || !file.type.startsWith("image/")) {
-                showState('error');
-                return;
-            }
-
-            fileNameEl.textContent = file.name;
-            fileStatusEl.textContent = "Uploading...";
-            progressBar.style.width = '0%';
-            showState('uploading');
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    fileStatusEl.textContent = "Analyzing...";
-                    let progress = 0;
-                    const interval = setInterval(() => {
-                        progress += 20;
-                        progressBar.style.width = progress + '%';
-                        if (progress >= 100) {
-                            clearInterval(interval);
-                            predict(img);
-                        }
-                    }, 150);
-                };
-            };
-            reader.readAsDataURL(file);
-        }
         
-        function resetApp() {
-            fileInput.value = '';
-            showState('default');
-        }
+        /* --- YENİ --- Sonuç Bilgilendirmesi */
+        .tumor-info { margin-top: 20px; padding: 15px; background-color: rgba(0,0,0,0.2); border-radius: 12px; text-align: left; }
+        .tumor-info h4 { margin: 0 0 8px 0; color: var(--success-color); }
+        .tumor-info p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--secondary-text); }
+        .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
         
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
-        dropZone.addEventListener('dragleave', e => { e.preventDefault(); dropZone.style.backgroundColor = 'transparent'; });
-        dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.backgroundColor = 'transparent'; handleFile(e.dataTransfer.files[0]); });
-        tryAgainBtn.addEventListener('click', resetApp);
-        scanAnotherBtn.addEventListener('click', resetApp);
-
-        loadModel();
-    </script>
-</body>
-</html>
+        /* --- YENİ --- Kamera Ekranı */
