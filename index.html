@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
     <style>
@@ -201,12 +202,12 @@
             en: {
                 headerSubtitle: "Tumor Classifier", uploadTitle: "Upload your MRI Scans", uploadSubtitle: "Select multiple files or use your camera", btnChooseFiles: "Choose Files", btnUseCamera: "Use Camera", disclaimerTitle: "WARNING:", disclaimerText: "This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.", errorTitle: "Error", errorText: "Please upload valid image files.", btnTryAgain: "Try Again", avgResultTitle: "Average Result", detailedBreakdown: "Detailed Breakdown", resultForImage: "Result for: Image", noConfidentResult: "No confident prediction could be made.", btnDownloadReport: "Download Report", btnScanAnother: "Scan Another", btnCancel: "Cancel", btnCaptureImage: "Capture Image", analyzingText: "Analyzing", ofText: "of", fromCameraText: "from Camera", creatingPdf: "Creating PDF...", pdfReportTitle: "brAIn Analysis Report", pdfReportDate: "Report Date", pdfAnalysisId: "Analysis ID", pdfAvgResult: "Average Result", pdfDetailedBreakdown: "Detailed Breakdown", pdfImage: "Image", confidenceScore: "Overall Confidence Score", invalidImagesTitle: "Unsuitable for Analysis", invalidImagesText: "The following images were not recognized as brain MRIs and were excluded from the average result.", aboutTitle: "About this Project", aboutDesc1: "This tool is an AI-powered brain tumor classifier designed as a proof-of-concept. It utilizes a deep learning model to analyze brain MRI scans and predict one of seven categories, including several tumor types and healthy scans.", techUsed: "Technologies Used:", developer: "Developer:", yourName: "Isa Sahin", aboutDisclaimer: "Important: This tool is for educational and research purposes only and is not a substitute for professional medical advice.", btnClose: "Close",
                 methodologyText: "This report was generated using a deep learning model (TensorFlow.js & Teachable Machine) trained on over 4,000 brain MRI scans across 7 distinct classifications. The results indicate the model's prediction based on the provided images and should not be considered a definitive medical diagnosis.",
-                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://en.wikipedia.org/wiki/Glioblastoma", description: "One of the most aggressive brain tumors..." }, "Menengiom": { name: "Meningioma", link: "https://en.wikipedia.org/wiki/Meningioma", description: "A generally slow-growing and benign tumor..." }, "Oligodendrogliom": { name: "Oligodendroglioma", link: "https://en.wikipedia.org/wiki/Oligodendroglioma", description: "A type of tumor that develops from oligodendrocytes..." }, "Pituitary": { name: "Pituitary Tumor", link: "https://en.wikipedia.org/wiki/Pituitary_adenoma", description: "A usually benign tumor that develops in the pituitary gland..." }, "CVM": { name: "Cerebral Vascular Malformation (CVM)", link: "https://en.wikipedia.org/wiki/Vascular_malformation", description: "A congenital blood vessel abnormality..." }, "AVM": { name: "Arteriovenous Malformation (AVM)", link: "https://en.wikipedia.org/wiki/Arteriovenous_malformation", description: "An abnormal connection between arteries and veins..." }, "Healthy": { name: "Healthy", link: "", description: "No tumor or significant anomaly was detected..." } }
+                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://en.wikipedia.org/wiki/Glioblastoma", description: "One of the most aggressive brain tumors. It tends to grow and spread rapidly." }, "Menengiom": { name: "Meningioma", link: "https://en.wikipedia.org/wiki/Meningioma", description: "A generally slow-growing and benign tumor that originates from the meninges, the membranes surrounding the brain and spinal cord." }, "Oligodendrogliom": { name: "Oligodendroglioma", link: "https://en.wikipedia.org/wiki/Oligodendroglioma", description: "A type of tumor that develops from oligodendrocytes, cells that support nerve cells in the brain." }, "Pituitary": { name: "Pituitary Tumor", link: "https://en.wikipedia.org/wiki/Pituitary_adenoma", description: "A usually benign tumor that develops in the pituitary gland at the base of the brain." }, "CVM": { name: "Cerebral Vascular Malformation (CVM)", link: "https://en.wikipedia.org/wiki/Vascular_malformation", description: "A congenital blood vessel abnormality. It is not a true tumor but can lead to serious problems like bleeding or seizures." }, "AVM": { name: "Arteriovenous Malformation (AVM)", link: "https://en.wikipedia.org/wiki/Arteriovenous_malformation", description: "An abnormal connection between arteries and veins. It carries a risk of bleeding due to high pressure." }, "Healthy": { name: "Healthy", link: "", description: "No tumor or significant anomaly was detected in the analyzed MRI scan. This result does not substitute for a definitive medical diagnosis." } }
             },
             tr: {
                 headerSubtitle: "Tümör Sınıflandırıcı", uploadTitle: "MR Taramalarınızı Yükleyin", uploadSubtitle: "Birden fazla dosya seçin veya kameranızı kullanın", btnChooseFiles: "Dosya Seç", btnUseCamera: "Kamera Kullan", disclaimerTitle: "UYARI:", disclaimerText: "Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.", errorTitle: "Hata", errorText: "Lütfen geçerli resim dosyaları yükleyin.", btnTryAgain: "Tekrar Dene", avgResultTitle: "Ortalama Sonuç", detailedBreakdown: "Detaylı Döküm", resultForImage: "Sonuç: Görüntü", noConfidentResult: "Yeterli kesinlikte bir sonuç bulunamadı.", btnDownloadReport: "Raporu İndir", btnScanAnother: "Başkasına Tara", btnCancel: "İptal", btnCaptureImage: "Fotoğraf Çek", analyzingText: "Analiz ediliyor", ofText: "/", fromCameraText: "Kameradan", creatingPdf: "PDF Oluşturuluyor...", pdfReportTitle: "brAIn Analiz Raporu", pdfReportDate: "Rapor Tarihi", pdfAnalysisId: "Analiz ID", pdfAvgResult: "Ortalama Sonuç", pdfDetailedBreakdown: "Detaylı Döküm", pdfImage: "Görüntü", confidenceScore: "Genel Güven Skoru", invalidImagesTitle: "Analiz İçin Uygun Değil", invalidImagesText: "Aşağıdaki görüntüler beyin MR'ı olarak algılanamadı ve ortalama sonuca dahil edilmedi.", aboutTitle: "Proje Hakkında", aboutDesc1: "Bu araç, konsept kanıtlama amacıyla tasarlanmış yapay zeka destekli bir beyin tümörü sınıflandırıcısıdır. Beyin MR'larını analiz etmek ve çeşitli tümör türleri ile sağlıklı taramalar dahil olmak üzere yedi kategoriden birini tahmin etmek için bir derin öğrenme modeli kullanır.", techUsed: "Kullanılan Teknolojiler:", developer: "Geliştirici:", yourName: "Isa Sahin", aboutDisclaimer: "Önemli: Bu araç yalnızca eğitim ve araştırma amaçlıdır ve profesyonel tıbbi tavsiye yerine geçmez.", btnClose: "Kapat",
                 methodologyText: "Bu rapor, 7 farklı sınıf üzerinde 4000'den fazla beyin MR görüntüsü ile eğitilmiş bir derin öğrenme modeli (TensorFlow.js & Teachable Machine) kullanılarak oluşturulmuştur. Sonuçlar, sağlanan görüntülere dayanarak modelin tahminini belirtir ve kesin bir tıbbi tanı olarak kabul edilmemelidir.",
-                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://tr.wikipedia.org/wiki/Glioblastoma", description: "En agresif beyin tümörlerinden biridir..." }, "Menengiom": { name: "Menenjiyom", link: "https://tr.wikipedia.org/wiki/Menenjiyom", description: "Genellikle yavaş büyüyen ve iyi huylu bir tümördür..." }, "Oligodendrogliom": { name: "Oligodendrogliom", link: "https://tr.wikipedia.org/wiki/Oligodendrogliom", description: "Oligodendrosit hücrelerinden gelişen bir tümör türüdür..." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", link: "https://tr.wikipedia.org/wiki/Hipofiz_adenomu", description: "Hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür..." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", link: "https://tr.wikipedia.org/wiki/Vask%C3%BCler_malformasyon", description: "Doğuştan gelen bir kan damarı anomalisidir..." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", link: "https://tr.wikipedia.org/wiki/Arteriyoven%C3%B6z_malformasyon", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır..." }, "Healthy": { name: "Sağlıklı (Healthy)", link: "", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir..." } }
+                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://tr.wikipedia.org/wiki/Glioblastoma", description: "En agresif beyin tümörlerinden biridir." }, "Menengiom": { name: "Menenjiyom", link: "https://tr.wikipedia.org/wiki/Menenjiyom", description: "Genellikle yavaş büyüyen ve iyi huylu bir tümördür." }, "Oligodendrogliom": { name: "Oligodendrogliom", link: "https://tr.wikipedia.org/wiki/Oligodendrogliom", description: "Oligodendrosit hücrelerinden gelişen bir tümör türüdür." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", link: "https://tr.wikipedia.org/wiki/Hipofiz_adenomu", description: "Hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", link: "https://tr.wikipedia.org/wiki/Vask%C3%BCler_malformasyon", description: "Doğuştan gelen bir kan damarı anomalisidir." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", link: "https://tr.wikipedia.org/wiki/Arteriyoven%C3%B6z_malformasyon", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır." }, "Healthy": { name: "Sağlıklı (Healthy)", link: "", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir." } }
             }
         };
 
@@ -357,21 +358,18 @@
             pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
             yPos += 20;
 
-            pdf.setFontSize(10).setFont('helvetica', 'bold');
-            pdf.text('Methodology:', margin, yPos);
+            pdf.setFontSize(10).setFont('helvetica', 'bold'); pdf.text('Methodology:', margin, yPos);
             yPos += 12;
             pdf.setFontSize(8).setFont('helvetica', 'normal');
             const methodologyLines = pdf.splitTextToSize(translations[currentLang].methodologyText, pageWidth - margin * 2);
             pdf.text(methodologyLines, margin, yPos);
-            yPos += methodologyLines.length * 10 + 10;
+            yPos += methodologyLines.length * 8 + 15;
 
             const { overallScore } = calculateConfidence();
-            pdf.setFontSize(12).setFont('helvetica', 'bold');
-            pdf.text(`${translations[currentLang].confidenceScore}: ${overallScore.toFixed(1)}%`, margin, yPos);
+            pdf.setFontSize(12).setFont('helvetica', 'bold'); pdf.text(`${translations[currentLang].confidenceScore}: ${overallScore.toFixed(1)}%`, margin, yPos);
             yPos += 20;
 
-            pdf.setFontSize(16).setFont('helvetica', 'bold');
-            pdf.text(translations[currentLang].pdfAvgResult, margin, yPos);
+            pdf.setFontSize(16).setFont('helvetica', 'bold'); pdf.text(translations[currentLang].pdfAvgResult, margin, yPos);
             yPos += 15;
 
             const classTotals = {};
@@ -379,25 +377,18 @@
             batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
             const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 })).filter(p => p.probability >= 1).sort((a,b) => b.probability - a.probability);
 
-            const barHeight = 14;
-            const barYMargin = 6;
-            const barStartX = margin + 100;
-            const barMaxWidth = pageWidth - barStartX - margin;
+            const barHeight = 14; const barYMargin = 6; const barStartX = margin + 100; const barMaxWidth = pageWidth - barStartX - margin;
             
             averagePredictions.forEach((p, index) => {
+                if (yPos + barHeight > pageHeight - margin) { pdf.addPage(); yPos = margin; }
                 const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
                 const percentage = p.probability.toFixed(1);
-                pdf.setFontSize(8).setFont('helvetica', 'normal');
-                pdf.text(className, margin, yPos + barHeight / 1.5);
-                pdf.setFillColor(238, 238, 238);
-                pdf.rect(barStartX, yPos, barMaxWidth, barHeight, 'F');
-                pdf.setFillColor(index === 0 ? 0, 196, 140 : 74, 77, 230);
-                pdf.rect(barStartX, yPos, barMaxWidth * (p.probability / 100), barHeight, 'F');
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(8).setFont('helvetica', 'bold');
-                pdf.text(`${percentage}%`, barStartX + barMaxWidth - 5, yPos + barHeight / 1.5, { align: 'right'});
-                pdf.setTextColor(0, 0, 0);
-                yPos += barHeight + barYMargin;
+                pdf.setFontSize(8).setFont('helvetica', 'normal'); pdf.text(className, margin, yPos + barHeight / 1.5);
+                pdf.setFillColor(238, 238, 238); pdf.rect(barStartX, yPos, barMaxWidth, barHeight, 'F');
+                pdf.setFillColor(index === 0 ? 0, 196, 140 : 74, 77, 230); pdf.rect(barStartX, yPos, barMaxWidth * (p.probability / 100), barHeight, 'F');
+                pdf.setTextColor(255, 255, 255); pdf.setFontSize(8).setFont('helvetica', 'bold');
+                if (p.probability > 15) { pdf.text(`${percentage}%`, barStartX + barMaxWidth * (p.probability / 100) - 5, yPos + barHeight / 1.5, { align: 'right'}); }
+                pdf.setTextColor(0, 0, 0); yPos += barHeight + barYMargin;
             });
             yPos += 10;
             
@@ -427,7 +418,7 @@
             const totalPages = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
-                pdf.setFontSize(40).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.2})); // Opaklık artırıldı
+                pdf.setFontSize(40).setTextColor(200, 200, 200).setGState(new pdf.GState({opacity: 0.15}));
                 pdf.text(watermark1, pageWidth / 2, pageHeight * 0.25, null, 45, 'center');
                 pdf.text(watermark2, pageWidth / 2, pageHeight * 0.75, null, -45, 'center');
                 pdf.text(watermark1, pageHeight * 0.25, pageHeight / 2, null, -45, 'center');
