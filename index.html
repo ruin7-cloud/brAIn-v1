@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
+<html lang="en"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - Toplu Analiz v2</title>
+    <title>brAIn - Tumor Classifier</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,6 +24,9 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--primary-text); margin: 0; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
+        .lang-switcher { position: fixed; top: 20px; right: 20px; z-index: 10; background-color: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; }
+        .lang-link { color: var(--secondary-text); text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 5px; transition: color 0.3s; }
+        .lang-link.active, .lang-link:hover { color: var(--primary-text); }
         .header { margin-bottom: 24px; }
         .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
         .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
@@ -32,7 +34,6 @@
         .state { display: none; }
         .state.active { display: block; }
         .disclaimer { font-size: 12px; color: var(--warning-color); background-color: rgba(255, 199, 0, 0.1); border: 1px solid rgba(255, 199, 0, 0.2); border-radius: 8px; padding: 10px; margin-top: 24px; text-align: left; line-height: 1.5; }
-        .disclaimer strong { color: #FFD76B; }
         .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
         .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; }
         .upload-options { display: flex; gap: 12px; margin-top: 24px; }
@@ -60,18 +61,18 @@
         #result-state { padding: 24px; }
         #result-content { }
         .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; text-align: left; }
-        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px;}
+        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
         .prediction-item { display: flex; align-items: center; gap: 12px; }
         .prediction-label { flex-basis: 120px; flex-shrink: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .prediction-bar-bg { flex-grow: 1; height: 24px; background-color: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; }
         .prediction-bar { width: 0; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: var(--primary-text); transition: width 0.4s ease-in-out; }
         .prediction-item .prediction-bar { background-color: var(--accent-color); }
         .prediction-item.top-prediction .prediction-bar { background-color: var(--success-color); }
-        .tumor-info { margin-top: 20px; padding: 15px; background-color: rgba(0,0,0,0.2); border-radius: 12px; text-align: left; }
+        .tumor-info { border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px; text-align: left; }
         .tumor-info h4 { margin: 0 0 8px 0; color: var(--success-color); }
         .tumor-info p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--secondary-text); }
         .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
-        .detailed-results { margin-top: 20px; }
+        .detailed-results { border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px;}
         .thumbnail-gallery { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
         .thumbnail { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: border-color 0.3s; opacity: 0.7; }
         .thumbnail:hover { opacity: 1; }
@@ -80,22 +81,33 @@
     </style>
 </head>
 <body>
-    <header class="header"><h1>brAIn</h1><p>Tumor Classifier</p></header>
+    <div class="lang-switcher">
+        <a href="#" class="lang-link" data-lang="en">EN</a>
+        <span>|</span>
+        <a href="#" class="lang-link" data-lang="tr">TR</a>
+    </div>
+
+    <header class="header">
+        <h1>brAIn</h1>
+        <p data-translate-key="headerSubtitle">Tumor Classifier</p>
+    </header>
     <main class="card" id="main-card">
         <div id="default-state" class="state active">
-            <h3 class="upload-title">Upload your MRI Scans</h3>
-            <p class="upload-subtitle">Select multiple files or use your camera</p>
+            <h3 class="upload-title" data-translate-key="uploadTitle">Upload your MRI Scans</h3>
+            <p class="upload-subtitle" data-translate-key="uploadSubtitle">Select multiple files or use your camera</p>
             <div class="upload-options">
                 <label for="file-input" id="drop-zone">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg>
-                    <span>Choose Files</span>
+                    <span data-translate-key="btnChooseFiles">Choose Files</span>
                 </label>
                 <button id="camera-btn" class="btn btn-secondary">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>
-                    <span>Use Camera</span>
+                    <span data-translate-key="btnUseCamera">Use Camera</span>
                 </button>
             </div>
-            <div class="disclaimer"><strong>UYARI:</strong> Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.</div>
+            <div class="disclaimer">
+                <strong data-translate-key="disclaimerTitle">WARNING:</strong> <span data-translate-key="disclaimerText">This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.</span>
+            </div>
             <input type="file" id="file-input" accept="image/*" multiple>
         </div>
         <div id="uploading-state" class="state">
@@ -108,42 +120,108 @@
         <div id="error-state" class="state">
             <div class="file-info-card">
                 <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
-                <div class="file-details"><div class="file-name">Error</div><div class="file-status">Please upload valid image files.</div></div>
+                <div class="file-details"><div class="file-name" data-translate-key="errorTitle">Error</div><div class="file-status" data-translate-key="errorText">Please upload valid image files.</div></div>
             </div>
-            <button id="try-again-btn" class="btn btn-primary">Try again</button>
+            <button id="try-again-btn" class="btn btn-primary" data-translate-key="btnTryAgain">Try again</button>
         </div>
         <div id="result-state" class="state">
             <div id="result-content">
-                <h3 id="main-results-title" class="results-title">Average Result</h3>
+                <h3 id="main-results-title" class="results-title"></h3>
                 <div id="prediction-list" class="prediction-list"></div>
                 <div id="tumor-info" class="tumor-info"></div>
-                <div class="detailed-results">
-                    <h3 class="results-title" style="font-size: 18px; margin-top: 20px;">Detailed Breakdown</h3>
+                <div id="detailed-results" class="detailed-results">
+                    <h3 class="results-title" style="font-size: 18px;" data-translate-key="detailedBreakdown"></h3>
                     <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
                 </div>
             </div>
             <div class="result-buttons">
-                <button id="pdf-btn" class="btn btn-secondary">Download Report</button>
-                <button id="scan-another-btn" class="btn btn-primary">Scan Another</button>
+                <button id="pdf-btn" class="btn btn-secondary" data-translate-key="btnDownloadReport">Download Report</button>
+                <button id="scan-another-btn" class="btn btn-primary" data-translate-key="btnScanAnother">Scan Another</button>
             </div>
         </div>
         <div id="camera-state" class="state">
             <video id="camera-feed" autoplay playsinline></video>
             <div class="result-buttons">
-                <button id="cancel-camera-btn" class="btn btn-secondary">Cancel</button>
-                <button id="capture-btn" class="btn btn-primary">Capture Image</button>
+                <button id="cancel-camera-btn" class="btn btn-secondary" data-translate-key="btnCancel">Cancel</button>
+                <button id="capture-btn" class="btn btn-primary" data-translate-key="btnCaptureImage">Capture Image</button>
             </div>
         </div>
     </main>
     <script>
         const { jsPDF } = window.jspdf;
         const URL = "./model/";
-        let model, webcamStream, currentResultId;
+        let model, webcamStream, currentResultId, currentLang;
         let batchResults = [];
 
-        const tumorDescriptions = {
-            "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "En agresif beyin tümörlerinden biridir. Hızlı büyüme ve yayılma eğilimindedir. Tedavisi genellikle cerrahi, radyoterapi ve kemoterapi kombinasyonunu içerir." }, "Menengiom": { name: "Menenjiyom", description: "Beyin ve omuriliği çevreleyen zarlardan (meninksler) kaynaklanan, genellikle yavaş büyüyen ve iyi huylu bir tümördür. Cerrahi ile tamamen çıkarılabilir." }, "Oligodendrogliom": { name: "Oligodendrogliom", description: "Beyindeki sinir hücrelerini destekleyen oligodendrosit hücrelerinden gelişen bir tümör türüdür. Genellikle yavaş büyür ancak zamanla kötü huylu hale gelebilir." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "Beynin tabanında bulunan hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür. Hormon dengesizliklerine neden olabilir." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "Doğuştan gelen bir kan damarı anomalisidir. Gerçek bir tümör değildir, ancak kanama veya nöbet gibi ciddi sorunlara yol açabilir." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır. Yüksek basınç nedeniyle kanama riski taşır ve baş ağrısı veya nöbetlere neden olabilir." }, "Healthy": { name: "Sağlıklı (Healthy)", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir. Bu sonuç, kesin bir tıbbi tanı yerine geçmez." }
+        const translations = {
+            en: {
+                headerSubtitle: "Tumor Classifier",
+                uploadTitle: "Upload your MRI Scans",
+                uploadSubtitle: "Select multiple files or use your camera",
+                btnChooseFiles: "Choose Files",
+                btnUseCamera: "Use Camera",
+                disclaimerTitle: "WARNING:",
+                disclaimerText: "This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.",
+                errorTitle: "Error",
+                errorText: "Please upload valid image files.",
+                btnTryAgain: "Try Again",
+                avgResultTitle: "Average Result",
+                detailedBreakdown: "Detailed Breakdown",
+                resultForImage: "Result for: Image",
+                noConfidentResult: "No confident prediction could be made.",
+                btnDownloadReport: "Download Report",
+                btnScanAnother: "Scan Another",
+                btnCancel: "Cancel",
+                btnCaptureImage: "Capture Image",
+                analyzingText: "Analyzing",
+                ofText: "of",
+                fromCameraText: "from Camera",
+                creatingPdf: "Creating PDF...",
+                pdfReportTitle: "brAIn Analysis Report",
+                pdfReportDate: "Report Date",
+                pdfAnalysisId: "Analysis ID",
+                pdfAvgResult: "Average Result",
+                pdfDetailedBreakdown: "Detailed Breakdown",
+                pdfImage: "Image",
+                pdfWatermark1: "FOR RESEARCH PURPOSES ONLY",
+                pdfWatermark2: "NOT FOR MEDICAL DIAGNOSIS",
+                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "One of the most aggressive brain tumors. It tends to grow and spread rapidly. Treatment usually involves a combination of surgery, radiotherapy, and chemotherapy." }, "Menengiom": { name: "Meningioma", description: "A generally slow-growing and benign tumor that originates from the meninges, the membranes surrounding the brain and spinal cord. It can often be completely removed surgically." }, "Oligodendrogliom": { name: "Oligodendroglioma", description: "A type of tumor that develops from oligodendrocytes, cells that support nerve cells in the brain. It is usually slow-growing but can become malignant over time." }, "Pituitary": { name: "Pituitary Tumor", description: "A usually benign tumor that develops in the pituitary gland at the base of the brain. It can cause hormonal imbalances." }, "CVM": { name: "Cerebral Vascular Malformation (CVM)", description: "A congenital blood vessel abnormality. It is not a true tumor but can lead to serious problems like bleeding or seizures." }, "AVM": { name: "Arteriovenous Malformation (AVM)", description: "An abnormal connection between arteries and veins. It carries a risk of bleeding due to high pressure and can cause headaches or seizures." }, "Healthy": { name: "Healthy", description: "No tumor or significant anomaly was detected in the analyzed MRI scan. This result does not substitute for a definitive medical diagnosis." } }
+            },
+            tr: {
+                headerSubtitle: "Tümör Sınıflandırıcı",
+                uploadTitle: "MR Taramalarınızı Yükleyin",
+                uploadSubtitle: "Birden fazla dosya seçin veya kameranızı kullanın",
+                btnChooseFiles: "Dosya Seç",
+                btnUseCamera: "Kamera Kullan",
+                disclaimerTitle: "UYARI:",
+                disclaimerText: "Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.",
+                errorTitle: "Hata",
+                errorText: "Lütfen geçerli resim dosyaları yükleyin.",
+                btnTryAgain: "Tekrar Dene",
+                avgResultTitle: "Ortalama Sonuç",
+                detailedBreakdown: "Detaylı Döküm",
+                resultForImage: "Sonuç: Görüntü",
+                noConfidentResult: "Yeterli kesinlikte bir sonuç bulunamadı.",
+                btnDownloadReport: "Raporu İndir",
+                btnScanAnother: "Başkasına Tara",
+                btnCancel: "İptal",
+                btnCaptureImage: "Fotoğraf Çek",
+                analyzingText: "Analiz ediliyor",
+                ofText: "/",
+                fromCameraText: "Kameradan",
+                creatingPdf: "PDF Oluşturuluyor...",
+                pdfReportTitle: "brAIn Analiz Raporu",
+                pdfReportDate: "Rapor Tarihi",
+                pdfAnalysisId: "Analiz ID",
+                pdfAvgResult: "Ortalama Sonuç",
+                pdfDetailedBreakdown: "Detaylı Döküm",
+                pdfImage: "Görüntü",
+                pdfWatermark1: "SADECE ARASTIRMA AMACLIDIR",
+                pdfWatermark2: "TIBBI TANI ICIN KULLANILAMAZ",
+                tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", description: "En agresif beyin tümörlerinden biridir. Hızlı büyüme ve yayılma eğilimindedir. Tedavisi genellikle cerrahi, radyoterapi ve kemoterapi kombinasyonunu içerir." }, "Menengiom": { name: "Menenjiyom", description: "Beyin ve omuriliği çevreleyen zarlardan (meninksler) kaynaklanan, genellikle yavaş büyüyen ve iyi huylu bir tümördür. Cerrahi ile tamamen çıkarılabilir." }, "Oligodendrogliom": { name: "Oligodendrogliom", description: "Beyindeki sinir hücrelerini destekleyen oligodendrosit hücrelerinden gelişen bir tümör türüdür. Genellikle yavaş büyür ancak zamanla kötü huylu hale gelebilir." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", description: "Beynin tabanında bulunan hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür. Hormon dengesizliklerine neden olabilir." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", description: "Doğuştan gelen bir kan damarı anomalisidir. Gerçek bir tümör değildir, ancak kanama veya nöbet gibi ciddi sorunlara yol açabilir." }, "AVM": { name: "Arteriovenöz Malformasyon (AVM)", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır. Yüksek basınç nedeniyle kanama riski taşır ve baş ağrısı veya nöbetlere neden olabilir." }, "Healthy": { name: "Sağlıklı (Healthy)", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir. Bu sonuç, kesin bir tıbbi tanı yerine geçmez." } }
+            }
         };
+
         const fileInput = document.getElementById('file-input');
         const dropZone = document.getElementById('drop-zone');
         const cameraBtn = document.getElementById('camera-btn');
@@ -162,6 +240,34 @@
         const thumbnailGallery = document.getElementById('thumbnail-gallery');
         const mainResultsTitle = document.getElementById('main-results-title');
 
+        function changeLanguage(lang) {
+            if (!translations[lang]) return;
+            currentLang = lang;
+            localStorage.setItem('brain-lang', lang);
+            document.documentElement.lang = lang;
+
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                if (translations[lang][key]) {
+                    // Span içindeki metni değiştirmek için
+                    const target = el.tagName === 'SPAN' ? el : el.querySelector('span') || el;
+                    target.textContent = translations[lang][key];
+                }
+            });
+            // Disclaimer metnini özel olarak ele alıyoruz
+            const disclaimerEl = document.querySelector('.disclaimer span');
+            if (disclaimerEl) disclaimerEl.textContent = translations[lang].disclaimerText;
+
+            document.querySelectorAll('.lang-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.lang === lang);
+            });
+
+            // Eğer sonuç ekranındaysak, dili güncelle
+            if (states.result.classList.contains('active')) {
+                displayBatchResults();
+            }
+        }
+        
         function showState(stateName) { Object.values(states).forEach(s => s.classList.remove('active')); states[stateName]?.classList.add('active'); }
         async function loadModel() { try { model = await tmImage.load(URL + "model.json", URL + "metadata.json"); } catch (error) { console.error("Model yüklenemedi:", error); const errEl = document.querySelector('#default-state .disclaimer'); if(errEl) errEl.innerHTML = '<strong>HATA:</strong> Model yüklenemedi. Sayfayı yenileyin.'; } }
         
@@ -169,14 +275,15 @@
             mainResultsTitle.textContent = title;
             predictionList.innerHTML = '';
             const filtered = predictions.filter(p => p.probability >= 1).sort((a, b) => b.probability - a.probability);
-            if (filtered.length === 0) { predictionList.innerHTML = '<p>No confident prediction.</p>'; return null; }
+            if (filtered.length === 0) { predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; return null; }
             
             const topPrediction = filtered[0];
             filtered.forEach((p, index) => {
                 const item = document.createElement('div');
                 item.className = 'prediction-item ' + (index === 0 ? 'top-prediction' : '');
                 const percentage = p.probability.toFixed(1);
-                item.innerHTML = `<div class="prediction-label" title="${p.className}">${p.className}</div><div class="prediction-bar-bg"><div class="prediction-bar">${percentage}%</div></div>`;
+                const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                item.innerHTML = `<div class="prediction-label" title="${className}">${className}</div><div class="prediction-bar-bg"><div class="prediction-bar">${percentage}%</div></div>`;
                 predictionList.appendChild(item);
                 setTimeout(() => { item.querySelector('.prediction-bar').style.width = `${percentage}%`; }, 50);
             });
@@ -189,165 +296,159 @@
             batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
             const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) * 100 }));
             
-            const topAvgPrediction = renderPredictionUI(averagePredictions, "Average Result");
+            const topAvgPrediction = renderPredictionUI(averagePredictions, translations[currentLang].avgResultTitle);
             updateTumorInfo(topAvgPrediction);
             
             thumbnailGallery.innerHTML = '';
-            batchResults.forEach((result, index) => {
-                const thumb = document.createElement('img');
-                thumb.src = result.imageSrc;
-                thumb.className = 'thumbnail';
-                if (index === 0) thumb.classList.add('active'); // Select first one by default
-                thumb.onclick = () => {
-                    document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
-                    thumb.classList.add('active');
-                    const individualPredictions = result.predictions.map(p => ({...p, probability: p.probability * 100}));
-                    const topIndividual = renderPredictionUI(individualPredictions, `Result for: Image ${index + 1}`);
-                    updateTumorInfo(topIndividual);
-                };
-                thumbnailGallery.appendChild(thumb);
-            });
-
-            // Save results for QR code linking
-            currentResultId = `res_${Date.now()}`;
-            try {
-                sessionStorage.setItem(currentResultId, JSON.stringify(batchResults));
-            } catch(e) { console.error("Session storage is full or unsupported."); }
+            if (batchResults.length > 1) {
+                document.getElementById('detailed-results').style.display = 'block';
+                batchResults.forEach((result, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = result.imageSrc;
+                    thumb.className = 'thumbnail';
+                    if (index === 0) thumb.classList.add('active');
+                    thumb.onclick = () => {
+                        document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                        const individualPredictions = result.predictions.map(p => ({...p, probability: p.probability * 100}));
+                        const topIndividual = renderPredictionUI(individualPredictions, `${translations[currentLang].resultForImage} ${index + 1}`);
+                        updateTumorInfo(topIndividual);
+                    };
+                    thumbnailGallery.appendChild(thumb);
+                });
+            } else {
+                document.getElementById('detailed-results').style.display = 'none';
+            }
             
+            if (!currentResultId) {
+                currentResultId = `res_${Date.now()}`;
+                try { sessionStorage.setItem(currentResultId, JSON.stringify(batchResults)); } catch(e) { console.error("Session storage error:", e); }
+            }
             showState('result');
         }
 
         function updateTumorInfo(topPrediction) {
-            const info = topPrediction ? tumorDescriptions[topPrediction.className] : null;
+            const info = topPrediction ? translations[currentLang].tumorDescriptions[topPrediction.className] : null;
             if (info) { tumorInfoEl.innerHTML = `<h4>${info.name}</h4><p>${info.description}</p>`; tumorInfoEl.style.display = 'block'; } else { tumorInfoEl.style.display = 'none'; }
         }
 
         async function runBatchAnalysis(files) {
             batchResults = [];
+            currentResultId = null; // Yeni analizde eski ID'yi sıfırla
             showState('uploading');
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                fileNameEl.textContent = `Analyzing ${i + 1} of ${files.length}`;
+                fileNameEl.textContent = `${translations[currentLang].analyzingText} ${i + 1} ${translations[currentLang].ofText} ${files.length}`;
                 fileStatusEl.textContent = file.name;
                 progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
-
                 const imageSrc = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
                 const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
-                
                 const predictions = await model.predict(img);
                 batchResults.push({ imageSrc, predictions });
             }
             displayBatchResults();
         }
 
-        function handleFiles(files) {
-            if (!files || files.length === 0) { showState('error'); return; }
-            const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/"));
-            if (imageFiles.length === 0) { showState('error'); return; }
-            runBatchAnalysis(imageFiles);
-        }
-        
-        async function handleCameraCapture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = cameraFeed.videoWidth;
-            canvas.height = cameraFeed.videoHeight;
-            canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
-            stopCamera();
-            
-            const imageSrc = canvas.toDataURL('image/png');
-            const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
-            const predictions = await model.predict(img);
-            batchResults = [{ imageSrc, predictions }];
-            displayBatchResults();
-        }
-
+        function handleFiles(files) { if (!files || files.length === 0) { showState('error'); return; } const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/")); if (imageFiles.length === 0) { showState('error'); return; } runBatchAnalysis(imageFiles); }
+        async function handleCameraCapture() { const canvas = document.createElement('canvas'); canvas.width = cameraFeed.videoWidth; canvas.height = cameraFeed.videoHeight; canvas.getContext('2d').drawImage(cameraFeed, 0, 0, canvas.width, canvas.height); stopCamera(); const imageSrc = canvas.toDataURL('image/png'); const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); }); const predictions = await model.predict(img); batchResults = [{ imageSrc, predictions }]; currentResultId = null; displayBatchResults(); }
         async function startCamera() { showState('camera'); try { webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }); cameraFeed.srcObject = webcamStream; } catch (e) { console.error("Kamera erişimi hatası:", e); resetApp(); } }
         function stopCamera() { if (webcamStream) { webcamStream.getTracks().forEach(track => track.stop()); } }
         function resetApp() { stopCamera(); fileInput.value = ''; showState('default'); }
 
         async function generatePDF() {
             const btn = document.getElementById('pdf-btn');
-            btn.textContent = 'Creating PDF...';
             btn.disabled = true;
+            btn.querySelector('span').textContent = translations[currentLang].creatingPdf;
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({ orientation: 'p', unit: 'px', format: 'a4' });
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
-            const margin = 20;
+            const margin = 40;
             let yPos = margin;
 
-            // --- PDF Header ---
             pdf.setFontSize(24).setFont('helvetica', 'bold');
-            pdf.text('brAIn Analysis Report', margin, yPos);
+            pdf.text(translations[currentLang].pdfReportTitle, margin, yPos);
             yPos += 20;
             pdf.setFontSize(10).setFont('helvetica', 'normal');
-            pdf.text(`Report Date: ${new Date().toLocaleDateString()}`, margin, yPos);
-            pdf.text(`Analysis ID: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
+            pdf.text(`${translations[currentLang].pdfReportDate}: ${new Date().toLocaleString()}`, margin, yPos);
+            pdf.text(`${translations[currentLang].pdfAnalysisId}: ${currentResultId}`, pageWidth - margin, yPos, { align: 'right' });
             yPos += 10;
-            pdf.setDrawColor('#cccccc').line(margin, yPos, pageWidth - margin, yPos);
+            pdf.setDrawColor('#444').line(margin, yPos, pageWidth - margin, yPos);
             yPos += 20;
+            
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.width = (pageWidth - margin * 2) + 'px';
+            tempContainer.style.color = 'black';
+            document.body.appendChild(tempContainer);
+            
+            const avgTitle = document.createElement('h3');
+            avgTitle.textContent = translations[currentLang].pdfAvgResult;
+            tempContainer.appendChild(avgTitle);
+            const avgList = document.getElementById('prediction-list').cloneNode(true);
+            tempContainer.appendChild(avgList);
+            const avgInfo = document.getElementById('tumor-info').cloneNode(true);
+            tempContainer.appendChild(avgInfo);
 
-            // --- Average Result Section ---
-            const avgContent = document.querySelector('#result-content').cloneNode(true);
-            avgContent.querySelector('.detailed-results').remove(); // Detayları klondan kaldır
-            document.body.appendChild(avgContent);
-            const avgCanvas = await html2canvas(avgContent, { scale: 2, backgroundColor: '#121829', useCORS: true});
+            const avgCanvas = await html2canvas(tempContainer, { scale: 2, useCORS: true});
+            document.body.removeChild(tempContainer);
             const avgImgData = avgCanvas.toDataURL('image/png');
             const avgImgProps = pdf.getImageProperties(avgImgData);
             const avgImgHeight = (avgImgProps.height * (pageWidth - margin * 2)) / avgImgProps.width;
             pdf.addImage(avgImgData, 'PNG', margin, yPos, pageWidth - margin * 2, avgImgHeight);
             yPos += avgImgHeight + 20;
-            document.body.removeChild(avgContent);
-            
-            // --- Detailed Breakdown Section ---
-            pdf.setFontSize(16).setFont('helvetica', 'bold');
-            pdf.text('Detailed Breakdown', margin, yPos);
-            yPos += 15;
 
-            for (let i = 0; i < batchResults.length; i++) {
-                const result = batchResults[i];
-                const imgData = result.imageSrc;
-                const thumbSize = 60;
-                if (yPos + thumbSize + margin > pageHeight) { pdf.addPage(); yPos = margin; }
-                
-                pdf.addImage(imgData, 'PNG', margin, yPos, thumbSize, thumbSize);
-                
-                let textX = margin + thumbSize + 10;
-                pdf.setFontSize(10).setFont('helvetica', 'bold');
-                pdf.text(`Image ${i + 1}`, textX, yPos + 8);
-                
-                const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
-                let predY = yPos + 22;
-                for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
-                    const p = sortedPreds[j];
-                    pdf.setFontSize(8).setFont('helvetica', 'normal');
-                    pdf.text(`${p.className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
-                    predY += 10;
+            if (batchResults.length > 1) {
+                if (yPos > pageHeight - 100) { pdf.addPage(); yPos = margin; }
+                pdf.setFontSize(16).setFont('helvetica', 'bold');
+                pdf.text(translations[currentLang].pdfDetailedBreakdown, margin, yPos);
+                yPos += 15;
+
+                for (let i = 0; i < batchResults.length; i++) {
+                    const result = batchResults[i];
+                    const thumbSize = 60;
+                    if (yPos + thumbSize + margin > pageHeight) { pdf.addPage(); yPos = margin; }
+                    pdf.addImage(result.imageSrc, 'PNG', margin, yPos, thumbSize, thumbSize);
+                    let textX = margin + thumbSize + 10;
+                    pdf.setFontSize(10).setFont('helvetica', 'bold');
+                    pdf.text(`${translations[currentLang].pdfImage} ${i + 1}`, textX, yPos + 8);
+                    const sortedPreds = [...result.predictions].sort((a,b) => b.probability - a.probability);
+                    let predY = yPos + 22;
+                    for(let j = 0; j < Math.min(sortedPreds.length, 3); j++) {
+                        const p = sortedPreds[j];
+                        const className = translations[currentLang].tumorDescriptions[p.className]?.name.split(' (')[0] || p.className;
+                        pdf.setFontSize(8).setFont('helvetica', 'normal');
+                        pdf.text(`${className}: ${(p.probability * 100).toFixed(1)}%`, textX, predY);
+                        predY += 10;
+                    }
+                    yPos += thumbSize + 10;
                 }
-                yPos += thumbSize + 10;
             }
-
-            // --- Watermark & QR Code ---
+            
             const totalPages = pdf.internal.getNumberOfPages();
             for (let i = 1; i <= totalPages; i++) {
                 pdf.setPage(i);
-                pdf.setFontSize(40).setTextColor(150, 150, 150, 0.2);
-                pdf.text('TANI VE TEDAVİ AMAÇLI KULLANILAMAZ', pageWidth / 2, pageHeight / 2, null, 45, 'center');
-                pdf.setTextColor(255, 255, 255);
-                
+                pdf.setFontSize(32).setTextColor(150, 150, 150).setGState(new pdf.GState({opacity: 0.1}));
+                pdf.text(translations[currentLang].pdfWatermark1, pageWidth / 2, pageHeight * 0.25, null, 45, 'center');
+                pdf.text(translations[currentLang].pdfWatermark2, pageWidth / 2, pageHeight * 0.75, null, -45, 'center');
+                pdf.text(translations[currentLang].pdfWatermark1, pageHeight * 0.25, pageHeight / 2, null, -45, 'center');
+                pdf.text(translations[currentLang].pdfWatermark2, pageWidth- (pageHeight * 0.25), pageHeight / 2, null, 45, 'center');
+                pdf.setGState(new pdf.GState({opacity: 1}));
+
                 if (i === totalPages) {
                     const qr = qrcode(0, 'L');
                     const qrUrl = `${window.location.origin}${window.location.pathname}#${currentResultId}`;
                     qr.addData(qrUrl);
                     qr.make();
-                    const qrImgData = qr.createDataURL(3);
-                    pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 40, pageHeight - margin - 40, 40, 40);
+                    const qrImgData = qr.createDataURL(4);
+                    pdf.addImage(qrImgData, 'PNG', pageWidth - margin - 50, pageHeight - margin - 50, 50, 50);
                 }
             }
 
             pdf.save('brAIn-analysis-report.pdf');
-            btn.textContent = 'Download Report';
+            btn.querySelector('span').textContent = translations[currentLang].btnDownloadReport;
             btn.disabled = false;
         }
 
@@ -363,6 +464,13 @@
             }
         }
 
+        document.querySelectorAll('.lang-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                changeLanguage(e.target.dataset.lang);
+            });
+        });
+
         fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
         dropZone.addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
         dropZone.addEventListener('dragleave', e => { e.currentTarget.style.backgroundColor = 'transparent'; });
@@ -374,8 +482,10 @@
         tryAgainBtn.addEventListener('click', resetApp);
         scanAnotherBtn.addEventListener('click', resetApp);
 
+        const savedLang = localStorage.getItem('brain-lang') || 'en';
+        changeLanguage(savedLang);
         loadModel();
-        checkUrlForResults(); // Sayfa yüklendiğinde linki kontrol et
+        checkUrlForResults();
     </script>
 </body>
 </html>
