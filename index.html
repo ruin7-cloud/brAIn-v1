@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - v1</title>
+    <title>brAIn - Tümör Analizi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -126,7 +126,7 @@
         .tumor-info p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--secondary-text); }
         .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
         
-        #camera-feed { width: 100%; max-width: 400px; border-radius: 16px; transform: scaleX(-1); margin-bottom: 16px;}
+        #camera-feed { width: 100%; max-width: 400px; border-radius: 16px; margin-bottom: 16px;}
     </style>
 </head>
 <body>
@@ -142,11 +142,11 @@
             <p class="upload-subtitle">Select a file or use your camera</p>
             <div class="upload-options">
                 <label for="file-input" id="drop-zone">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z" fill="currentColor"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg>
                     <span>Choose File</span>
                 </label>
                 <button id="camera-btn" class="btn btn-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z" fill="currentColor"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>
                     <span>Use Camera</span>
                 </button>
             </div>
@@ -158,7 +158,7 @@
 
         <div id="uploading-state" class="state">
              <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="white"/></svg></div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg></div>
                 <div class="file-details">
                     <div id="file-name" class="file-name"></div>
                     <div id="file-status" class="file-status"></div>
@@ -171,10 +171,10 @@
 
         <div id="error-state" class="state">
             <div class="file-info-card">
-                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="white"/></svg></div>
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
                 <div class="file-details">
-                    <div id="error-file-name" class="file-name">Error</div>
-                    <div id="error-file-status" class="file-status">Please upload a valid image file.</div>
+                    <div class="file-name">Error</div>
+                    <div class="file-status">Please upload a valid image file.</div>
                 </div>
             </div>
             <button id="try-again-btn" class="btn btn-primary">Try again</button>
@@ -295,8 +295,21 @@
             showState('result');
         }
         
-        async function analyzeImage(imageElement) {
-            fileNameEl.textContent = 'Analyzing from camera...';
+        async function predict(elementToPredict) {
+            const prediction = await model.predict(elementToPredict);
+            
+            let imageSrc;
+            if (elementToPredict.tagName.toLowerCase() === 'canvas') {
+                imageSrc = elementToPredict.toDataURL('image/png');
+            } else {
+                imageSrc = elementToPredict.src;
+            }
+            
+            displayResults(prediction, imageSrc);
+        }
+
+        function analyzeImage(imageOrCanvasElement, sourceName = 'File') {
+            fileNameEl.textContent = `Analyzing from ${sourceName}...`;
             fileStatusEl.textContent = "Analiz ediliyor...";
             progressBar.style.width = '0%';
             showState('uploading');
@@ -307,7 +320,7 @@
                 progressBar.style.width = progress + '%';
                 if (progress >= 100) {
                     clearInterval(interval);
-                    predict(imageElement);
+                    predict(imageOrCanvasElement);
                 }
             }, 150);
         }
@@ -321,7 +334,7 @@
             reader.onload = e => {
                 const img = new Image();
                 img.src = e.target.result;
-                img.onload = () => analyzeImage(img);
+                img.onload = () => analyzeImage(img, file.name);
             };
             reader.readAsDataURL(file);
         }
@@ -348,23 +361,28 @@
             canvas.width = cameraFeed.videoWidth;
             canvas.height = cameraFeed.videoHeight;
             const ctx = canvas.getContext('2d');
-            ctx.translate(canvas.width, 0);
-            ctx.scale(-1, 1);
             ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
             stopCamera();
-            
-            const img = new Image();
-            img.src = canvas.toDataURL('image/png');
-            img.onload = () => analyzeImage(img);
+            analyzeImage(canvas, 'Camera');
         }
 
         async function generatePDF() {
             const content = document.getElementById('result-content');
-            const canvas = await html2canvas(content, { scale: 2, backgroundColor: null, useCORS: true });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-            pdf.save('brAIn-analysis-report.pdf');
+            const pdfButton = document.getElementById('pdf-btn');
+            pdfButton.textContent = 'Creating PDF...'; // Buton metnini değiştir
+
+            try {
+                const canvas = await html2canvas(content, { scale: 2, backgroundColor: null, useCORS: true });
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+                pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                pdf.save('brAIn-analysis-report.pdf');
+            } catch (error) {
+                console.error('PDF oluşturma hatası:', error);
+                alert('PDF oluşturulurken bir hata oluştu.');
+            } finally {
+                pdfButton.textContent = 'Download Report'; // Buton metnini eski haline getir
+            }
         }
 
         function resetApp() {
@@ -389,4 +407,3 @@
     </script>
 </body>
 </html>
-
