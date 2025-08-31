@@ -329,7 +329,7 @@
         async function startCamera() {
             showState('camera');
             try {
-                webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 cameraFeed.srcObject = webcamStream;
             } catch (e) {
                 console.error("Kamera erişimi hatası:", e);
@@ -389,3 +389,4 @@
     </script>
 </body>
 </html>
+
