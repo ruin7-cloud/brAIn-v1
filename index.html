@@ -259,17 +259,7 @@
         document.querySelectorAll('.thumbnail[data-index]').forEach(thumb => {
             thumb.addEventListener('click', (e) => {
                 const index = e.target.dataset.index;
-                generateAndShowHeatmap(batchResults[index].imageSrc);
-            });
-        });
-    }
-
-    function resetApp() {
-        fileInput.value = '';
-        showState('default');
-    }
-
-    async function generateAndShowHeatmap(imageSrc) {
+             async function generateAndShowHeatmap(imageSrc) {
         heatmapModal.classList.add('visible');
         heatmapStatus.textContent = "Isı Haritası Oluşturuluyor...";
         heatmapImage.src = imageSrc;
@@ -285,23 +275,31 @@
         try {
             const underlyingModel = model.model;
 
-            // --- DEĞİŞİKLİK BURADA ---
-            // Hata ayıklama için tüm katman adlarını konsola yazdır.
-            console.log("Modeldeki Tüm Katman Adları:", underlyingModel.layers.map(l => l.name));
+            // --- FİNAL DEĞİŞİKLİK: DERİN ARAMA ---
+            // Modelin içindeki asıl görsel modelini (genellikle ilk katmandır) bul.
+            const visionModelLayer = underlyingModel.layers[0];
+            
+            // Eğer bu bir alt model ise, onun İÇİNDEKİ katmanları ara. Değilse, ana modelin katmanlarını kullan.
+            const layersToSearch = visionModelLayer.layers || underlyingModel.layers;
+            
+            console.log("Aranacak Katman Sayısı:", layersToSearch.length);
 
-            // Katman adını doğrudan yazmak yerine, son conv_pw_..._relu katmanını DİNAMİK olarak bul.
-            const allConvLayers = underlyingModel.layers.filter(layer => 
+            // Bu katman listesi içinden son 'conv_pw_..._relu' katmanını DİNAMİK olarak bul.
+            const allConvLayers = layersToSearch.filter(layer => 
                 layer.name.includes('conv_pw') && layer.name.includes('relu')
             );
             
-            // Bulunan katman listesinden en sonuncusunu hedef olarak seç.
             const targetLayer = allConvLayers.length > 0 ? allConvLayers[allConvLayers.length - 1] : null;
-            // --- DEĞİŞİKLİK BİTTİ ---
+            // --- FİNAL DEĞİŞİKLİK BİTTİ ---
 
             if (!targetLayer) {
-                // Eğer hala katman bulunamazsa daha net bir hata ver.
-                heatmapStatus.textContent = "Hata: Heatmap için uygun bir 'conv_pw' katmanı bulunamadı.";
-                console.error("Uygun katman bulunamadı. Lütfen konsoldaki katman listesini kontrol edin.");
+                heatmapStatus.textContent = "Hata: Modelin içinde heatmap için uygun katman bulunamadı.";
+                console.error("Uygun katman bulunamadı. Model mimarisi beklenenden farklı olabilir.");
+                // Hata ayıklama için tüm katmanları ve alt katmanları yazdır.
+                console.log("Üst Seviye Katmanlar:", underlyingModel.layers.map(l => l.name));
+                underlyingModel.layers.forEach(l => {
+                    if(l.layers) console.log(`'${l.name}' içindeki alt katmanlar:`, l.layers.map(sl => sl.name));
+                });
                 return;
             }
             
@@ -364,4 +362,5 @@
 </script>
 </body>
 </html>
+
 
