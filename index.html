@@ -269,7 +269,6 @@
         showState('default');
     }
 
-    // --- Heatmap Fonksiyonları ---
     async function generateAndShowHeatmap(imageSrc) {
         heatmapModal.classList.add('visible');
         heatmapStatus.textContent = "Isı Haritası Oluşturuluyor...";
@@ -285,13 +284,28 @@
 
         try {
             const underlyingModel = model.model;
-            const targetLayerName = 'conv_pw_13_relu';
-            const targetLayer = underlyingModel.layers.find(layer => layer.name === targetLayerName);
+
+            // --- DEĞİŞİKLİK BURADA ---
+            // Hata ayıklama için tüm katman adlarını konsola yazdır.
+            console.log("Modeldeki Tüm Katman Adları:", underlyingModel.layers.map(l => l.name));
+
+            // Katman adını doğrudan yazmak yerine, son conv_pw_..._relu katmanını DİNAMİK olarak bul.
+            const allConvLayers = underlyingModel.layers.filter(layer => 
+                layer.name.includes('conv_pw') && layer.name.includes('relu')
+            );
+            
+            // Bulunan katman listesinden en sonuncusunu hedef olarak seç.
+            const targetLayer = allConvLayers.length > 0 ? allConvLayers[allConvLayers.length - 1] : null;
+            // --- DEĞİŞİKLİK BİTTİ ---
 
             if (!targetLayer) {
-                heatmapStatus.textContent = "Hata: Isı haritası için uygun katman bulunamadı.";
+                // Eğer hala katman bulunamazsa daha net bir hata ver.
+                heatmapStatus.textContent = "Hata: Heatmap için uygun bir 'conv_pw' katmanı bulunamadı.";
+                console.error("Uygun katman bulunamadı. Lütfen konsoldaki katman listesini kontrol edin.");
                 return;
             }
+            
+            console.log("Hedef Heatmap Katmanı Olarak Seçildi:", targetLayer.name);
 
             const activationModel = tf.model({
                 inputs: underlyingModel.inputs,
@@ -334,33 +348,6 @@
         }
     }
     
-    async function drawHeatmapOnCanvas(heatmap) {
-        const resizedHeatmapData = await tf.image.resizeBilinear(heatmap.expandDims(-1), [heatmapCanvas.height, heatmapCanvas.width]).data();
-        const ctx = heatmapCanvas.getContext('2d');
-        const colors = [ [0, 0, 0], [0, 0, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0] ];
-        
-        function getColor(value) {
-            const scaledValue = value * (colors.length - 1);
-            const i = Math.floor(scaledValue);
-            const j = Math.ceil(scaledValue);
-            const frac = scaledValue - i;
-            const r = Math.round(colors[i][0] + (colors[j][0] - colors[i][0]) * frac);
-            const g = Math.round(colors[i][1] + (colors[j][1] - colors[i][1]) * frac);
-            const b = Math.round(colors[i][2] + (colors[j][2] - colors[i][2]) * frac);
-            return [r, g, b];
-        }
-
-        const imageData = ctx.createImageData(heatmapCanvas.width, heatmapCanvas.height);
-        for (let i = 0; i < resizedHeatmapData.length; i++) {
-            const [r, g, b] = getColor(resizedHeatmapData[i]);
-            imageData.data[i * 4] = r;
-            imageData.data[i * 4 + 1] = g;
-            imageData.data[i * 4 + 2] = b;
-            imageData.data[i * 4 + 3] = 255;
-        }
-        ctx.putImageData(imageData, 0, 0);
-    }
-    
     // --- Olay Dinleyicileri ---
     fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
     dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
@@ -377,3 +364,4 @@
 </script>
 </body>
 </html>
+
