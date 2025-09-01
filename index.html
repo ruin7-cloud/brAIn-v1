@@ -346,8 +346,19 @@
             } else {
                 invalidImagesEl.style.display = 'none';
             }
-            if (!currentResultId) { currentResultId = `res_${Date.now()}`; try { const dataToStore = { valid: batchResults, invalid: invalidImages }; sessionStorage.setItem(currentResultId, JSON.stringify(dataToStore)); } catch(e) { console.error("Session storage error:", e); } }
-            showState('result');
+            // YUKARIDAKİNİ SİLİP BUNU YAPIŞTIR:
+if (!currentResultId) {
+    currentResultId = `res_${Date.now()}`;
+    try {
+        // Obje içindeki resim verilerini kaydetme, sadece tahminleri kaydet.
+        // Bu, hafıza sorununu büyük ölçüde azaltır. Ancak şimdilik en güvenli yol hata yakalamak.
+        const dataToStore = { valid: batchResults, invalid: invalidImages };
+        sessionStorage.setItem(currentResultId, JSON.stringify(dataToStore));
+    } catch (e) {
+        // Hata olduğunda programı durdurma, sadece konsola bir uyarı yaz ve devam et.
+        console.warn("Session Storage'a kaydedilemedi, muhtemelen çok fazla resim yüklendi. URL ile paylaşma özelliği bu oturum için çalışmayabilir.", e);
+    }
+}
         }
 
         function calculateConfidence() { if (batchResults.length === 0) return { overallScore: 0, majorityClass: null }; const topPredictions = batchResults.map(r => r.predictions.sort((a, b) => b.probability - a.probability)[0]); const classCounts = topPredictions.reduce((acc, pred) => { acc[pred.className] = (acc[pred.className] || 0) + 1; return acc; }, {}); const majorityClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b); const consistency = (classCounts[majorityClass] / batchResults.length) * 100; const avgCertainty = topPredictions.reduce((sum, pred) => sum + pred.probability, 0) / topPredictions.length * 100; const overallScore = (consistency * 0.6) + (avgCertainty * 0.4); return { overallScore, majorityClass }; }
@@ -450,3 +461,4 @@
     </script>
 </body>
 </html>
+
