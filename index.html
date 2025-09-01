@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>brAIn - Final Version by Isa Sahin</title>
+    <title>brAIn - Tümör Analizi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,19 +26,9 @@
             --border-color: rgba(255, 255, 255, 0.1);
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--primary-text); margin: 0; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; text-align: center; }
-        .top-bar { position: fixed; top: 20px; right: 20px; z-index: 10; display: flex; align-items: center; gap: 15px; }
-        .lang-switcher { display: flex; align-items: center; background-color: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; }
-        .lang-link { color: var(--secondary-text); text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 5px; transition: color 0.3s; }
-        .lang-link.active, .lang-link:hover { color: var(--primary-text); }
-        #about-btn { background: none; border: none; cursor: pointer; color: var(--secondary-text); padding: 0; transition: color 0.3s; }
-        #about-btn:hover { color: var(--primary-text); }
-        .header { margin-bottom: 24px; }
-        .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
-        .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
         .card { background: var(--card-color); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid var(--border-color); padding: 32px; width: 100%; max-width: 480px; transition: all 0.3s ease; }
         .state { display: none; }
         .state.active { display: block; }
-        .disclaimer { font-size: 12px; color: var(--warning-color); background-color: rgba(255, 199, 0, 0.1); border: 1px solid rgba(255, 199, 0, 0.2); border-radius: 8px; padding: 10px; margin-top: 24px; text-align: left; line-height: 1.5; }
         .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
         .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; }
         .upload-options { display: flex; gap: 12px; margin-top: 24px; }
@@ -49,49 +39,19 @@
         #drop-zone span { font-size: 14px; font-weight: 500; }
         input[type="file"] { display: none; }
         .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; display: flex; justify-content: center; align-items: center; gap: 8px; line-height: 1; }
-        .btn:disabled { background-color: #555; cursor: not-allowed; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
-        .btn-primary:hover:not(:disabled) { background-color: #3a3dc5; }
-        .btn-secondary { background-color: rgba(0,0,0,0.2); color: var(--primary-text); }
-        .btn-secondary:hover:not(:disabled) { background-color: rgba(0,0,0,0.4); }
-        .btn svg { flex-shrink: 0; }
+        .btn-primary:hover { background-color: #3a3dc5; }
         .file-info-card { background-color: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
         .file-icon { flex-shrink: 0; padding: 8px; background-color: var(--accent-color); border-radius: 8px; }
-        .file-details { overflow: hidden; }
-        .file-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-status { font-size: 14px; color: var(--secondary-text); }
         .progress-bar-container { width: 100%; height: 6px; background-color: rgba(0, 0, 0, 0.3); border-radius: 3px; margin-top: 12px; overflow: hidden; }
         .progress-bar { width: 0%; height: 100%; background-color: var(--accent-color); border-radius: 3px; transition: width 0.5s ease; }
         #error-state .file-icon { background-color: var(--error-color); }
-        #result-state { padding: 24px; }
         .results-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; text-align: left; }
-        .prediction-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-        .prediction-item { display: flex; align-items: center; gap: 12px; }
-        .prediction-label { flex-basis: 120px; flex-shrink: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .prediction-bar-bg { flex-grow: 1; height: 24px; background-color: rgba(0, 0, 0, 0.3); border-radius: 6px; overflow: hidden; }
-        .prediction-bar { width: 0; height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; font-size: 12px; font-weight: 600; color: var(--primary-text); transition: width 0.4s ease-in-out; }
-        .prediction-item .prediction-bar { background-color: var(--accent-color); }
-        .prediction-item.top-prediction .prediction-bar { background-color: var(--success-color); }
-        .tumor-info { border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px; text-align: left; }
-        .tumor-info h4 { margin: 0 0 8px 0; color: var(--success-color); display: flex; align-items: center; gap: 8px; }
-        .tumor-info h4 a { color: var(--secondary-text); transition: color 0.3s; }
-        .tumor-info h4 a:hover { color: var(--primary-text); }
-        .tumor-info p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--secondary-text); }
-        .result-buttons { display: flex; gap: 12px; margin-top: 24px; }
-        .detailed-results { border-top: 1px solid var(--border-color); margin-top: 20px; padding-top: 20px;}
         .thumbnail-gallery { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; flex-wrap: wrap; }
         .thumbnail { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 2px solid transparent; transition: all 0.3s; opacity: 0.7; }
         .thumbnail:hover { opacity: 1; transform: scale(1.05); }
         .thumbnail.active { border-color: var(--accent-color); opacity: 1; }
         .thumbnail.outlier { border-color: var(--outlier-color); }
-        #camera-feed { width: 100%; max-width: 400px; border-radius: 16px; margin-bottom: 16px;}
-        .confidence-score { text-align: left; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .confidence-score strong { font-size: 16px; }
-        .confidence-score span { font-size: 18px; font-weight: 700; color: var(--success-color); }
-        .invalid-images { margin-top: 20px; }
-        .invalid-images p { font-size: 14px; color: var(--warning-color); }
-        
-        /* --- YENİ EKLENEN MODAL VE HEATMAP STİLLERİ --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-content { background: var(--card-color); padding: 20px; border-radius: 16px; max-width: 600px; width: 95%; text-align: center; border: 1px solid var(--border-color); }
@@ -101,247 +61,319 @@
         #heatmap-image { width: 100%; height: auto; display: block; border-radius: 8px; }
         #heatmap-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.6; border-radius: 8px; }
         #heatmap-status { min-height: 20px; font-style: italic; color: var(--secondary-text); }
-        
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <div class="lang-switcher"><a href="#" class="lang-link" data-lang="en">EN</a><span>|</span><a href="#" class="lang-link" data-lang="tr">TR</a></div>
-        <button id="about-btn" title="About this Project"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1zm1-8h-2V7h2v2z"/></svg></button>
-    </div>
-    
-    <div id="about-modal" class="modal-overlay"><div class="modal-content" style="text-align: left;"><h2 data-key="aboutTitle"></h2><p data-key="aboutDesc1"></p><p><strong data-key="techUsed"></strong></p><ul><li><strong>TensorFlow.js:</strong> <span data-key="techDesc1"></span></li><li><strong>Teachable Machine:</strong> <span data-key="techDesc2"></span></li><li><strong>Google AI:</strong> <span data-key="techDesc3"></span></li></ul><p><strong data-key="developer"></strong> <span data-key="yourName"></span></p><p style="font-size: 12px; color: var(--warning-color);"><strong data-key="important"></strong> <span data-key="aboutDisclaimer"></span></p><button id="close-about-modal-btn" class="btn btn-primary" style="margin-top: 20px;"><span data-key="btnClose"></span></button></div></div>
+    <header class="header"><h1>brAIn</h1><p data-key="headerSubtitle">Tümör Sınıflandırıcı</p></header>
     
     <div id="heatmap-modal" class="modal-overlay">
         <div class="modal-content">
-            <h2 data-key="heatmapTitle"></h2>
+            <h2 data-key="heatmapTitle">Isı Haritası Analizi</h2>
             <div id="heatmap-container">
                 <img id="heatmap-image" src="#" crossorigin="anonymous" alt="Heatmap Görüntüsü" />
                 <canvas id="heatmap-canvas"></canvas>
             </div>
             <p id="heatmap-status"></p>
-            <button id="close-heatmap-modal-btn" class="btn btn-primary"><span data-key="btnClose"></span></button>
+            <button id="close-heatmap-modal-btn" class="btn btn-primary" data-key="btnClose">Kapat</button>
         </div>
     </div>
 
-    <header class="header"><h1>brAIn</h1><p data-key="headerSubtitle"></p></header>
     <main class="card" id="main-card">
         <div id="default-state" class="state active">
-            <h3 class="upload-title" data-key="uploadTitle"></h3><p class="upload-subtitle" data-key="uploadSubtitle"></p>
-            <div class="upload-options"><label for="file-input" id="drop-zone"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14.4...Z"/></svg><span data-key="btnChooseFiles"></span></label><button id="camera-btn" class="btn btn-secondary"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4h...z"/></svg><span data-key="btnUseCamera"></span></button></div>
-            <div class="disclaimer"><strong data-key="disclaimerTitle"></strong> <span data-key="disclaimerText"></span></div>
+            <h3 class="upload-title" data-key="uploadTitle">MR Taramalarınızı Yükleyin</h3>
+            <p class="upload-subtitle" data-key="uploadSubtitle">Birden fazla dosya seçin veya kameranızı kullanın</p>
+            <div class="upload-options">
+                <label for="file-input" id="drop-zone">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19.5 14.25V14.25C19.5 15.2165 18.7165 16 17.75 16H13V19.25C13 19.6642 12.6642 20 12.25 20H10.75C10.3358 20 10 19.6642 10 19.25V16H5.25C4.2835 16 3.5 15.2165 3.5 14.25V14.25C3.5 13.2835 4.2835 12.5 5.25 12.5H5.66919C5.83538 12.5 5.99216 12.4042 6.07198 12.2591C6.77241 11.085 7.91424 10.25 9.25 10.25H9.5V8.75C9.5 7.3769 10.6269 6.25 12 6.25C13.3731 6.25 14.5 7.3769 14.5 8.75V12.5H17.75C18.7165 12.5 19.5 13.2835 19.5 14.25Z"/></svg>
+                    <span data-key="btnChooseFiles">Dosya Seç</span>
+                </label>
+                <button id="camera-btn" class="btn btn-primary">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3 6C3 4.34315 4.34315 3 6 3H18C19.6569 3 21 4.34315 21 6V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V6ZM6 5H18C18.5523 5 19 5.44772 19 6V18C19 18.5523 18.5523 19 18 19H6C5.44772 19 5 18.5523 5 18V6C5 5.44772 5.44772 5 6 5Z" fill="white"/></svg>
+                    <span data-key="btnUseCamera">Kamera Kullan</span>
+                </button>
+            </div>
             <input type="file" id="file-input" accept="image/*" multiple>
         </div>
-        <div id="uploading-state" class="state"><div class="file-info-card"><div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2...z"/></svg></div><div class="file-details"><div id="file-name" class="file-name"></div><div id="file-status" class="file-status"></div></div></div><div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div></div>
-        <div id="error-state" class="state"><div class="file-info-card"><div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.4...z"/></svg></div><div class="file-details"><div class="file-name" data-key="errorTitle"></div><div class="file-status" data-key="errorText"></div></div></div><button id="try-again-btn" class="btn btn-primary"><span data-key="btnTryAgain"></span></button></div>
-        <div id="result-state" class="state"><div id="result-content"><div id="confidence-score" class="confidence-score"></div><h3 id="main-results-title" class="results-title"></h3><div id="prediction-list" class="prediction-list"></div><div id="tumor-info" class="tumor-info"></div><div id="detailed-results" class="detailed-results"><h3 class="results-title" style="font-size: 18px;" data-key="detailedBreakdown"></h3><div id="thumbnail-gallery" class="thumbnail-gallery"></div></div><div id="invalid-images" class="invalid-images" style="display: none;"><h3 class="results-title" style="font-size: 16px; color: var(--warning-color);" data-key="invalidImagesTitle"></h3><p style="font-size: 12px; color: var(--secondary-text);" data-key="invalidImagesText"></p><div id="invalid-thumbnail-gallery" class="thumbnail-gallery"></div></div></div><div class="result-buttons"><button id="pdf-btn" class="btn btn-secondary"><span data-key="btnDownloadReport"></span></button><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div></div>
-        <div id="camera-state" class="state"><video id="camera-feed" autoplay playsinline></video><div class="result-buttons"><button id="cancel-camera-btn" class="btn btn-secondary"><span data-key="btnCancel"></span></button><button id="capture-btn" class="btn btn-primary"><span data-key="btnCaptureImage"></span></button></div></div>
+        <div id="uploading-state" class="state">
+            <div class="file-info-card">
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" fill="white"/></svg></div>
+                <div class="file-details"><div id="file-name" class="file-name"></div><div id="file-status" class="file-status"></div></div>
+            </div>
+            <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
+        </div>
+        <div id="error-state" class="state">
+            <div class="file-info-card">
+                <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="white"/></svg></div>
+                <div class="file-details"><div class="file-name" data-key="errorTitle">Hata</div><div class="file-status" data-key="errorText">Lütfen geçerli resim dosyaları yükleyin.</div></div>
+            </div>
+            <button id="try-again-btn" class="btn btn-primary"><span data-key="btnTryAgain">Tekrar Dene</span></button>
+        </div>
+        <div id="result-state" class="state">
+            </div>
     </main>
-    
-    <div id="pdf-render-container" style="position: absolute; left: -9999px; top: 0; background: white; color: black; padding: 40px; font-family: 'Inter', sans-serif; width: 595px; box-sizing: border-box; line-height: 1.4;"></div>
-    
-    <script>
-        const { jsPDF } = window.jspdf;
-        const URL = "./model/";
-        const CONFIDENCE_THRESHOLD = 0.50;
-        let model, webcamStream, currentResultId, currentLang;
-        let batchResults = [], invalidImages = [];
+<script>
+    const URL = "./model/";
+    const CONFIDENCE_THRESHOLD = 0.50;
+    let model, webcamStream;
+    let batchResults = [], invalidImages = [];
 
-        const translations = {
-            en: {
-                // ... (mevcut ingilizce çevirileriniz buraya gelecek, değişiklik yok)
-                heatmapTitle: "Heatmap Analysis",
-                heatmapGenerating: "Generating Heatmap...",
-                heatmapReady: "Heatmap is ready.",
-                heatmapError: "Error: Could not find a suitable layer for heatmap.",
-                btnClose: "Close",
-                // ... (diğer çeviriler)
-            },
-            tr: {
-                // ... (mevcut türkçe çevirileriniz buraya gelecek, değişiklik yok)
-                heatmapTitle: "Isı Haritası Analizi",
-                heatmapGenerating: "Isı Haritası Oluşturuluyor...",
-                heatmapReady: "Isı Haritası hazır.",
-                heatmapError: "Hata: Isı haritası için uygun katman bulunamadı.",
-                btnClose: "Kapat",
-                // ... (diğer çeviriler)
-            }
-        };
+    // --- DOM Elementleri ---
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const cameraBtn = document.getElementById('camera-btn');
+    const states = {
+        default: document.getElementById('default-state'),
+        uploading: document.getElementById('uploading-state'),
+        error: document.getElementById('error-state'),
+        result: document.getElementById('result-state'),
+    };
+    const fileNameEl = document.getElementById('file-name');
+    const fileStatusEl = document.getElementById('file-status');
+    const progressBar = document.getElementById('progress-bar');
+    const tryAgainBtn = document.getElementById('try-again-btn');
+    
+    // Heatmap Modal Elementleri
+    const heatmapModal = document.getElementById('heatmap-modal');
+    const heatmapImage = document.getElementById('heatmap-image');
+    const heatmapCanvas = document.getElementById('heatmap-canvas');
+    const heatmapStatus = document.getElementById('heatmap-status');
+    const closeHeatmapModalBtn = document.getElementById('close-heatmap-modal-btn');
 
-        // --- DOM Element Selections ---
-        // ... (mevcut element seçimleriniz)
-        const aboutModal = document.getElementById('about-modal');
-        const closeAboutModalBtn = document.getElementById('close-about-modal-btn');
-        
-        // --- YENİ HEATMAP MODAL ELEMENTLERİ ---
-        const heatmapModal = document.getElementById('heatmap-modal');
-        const heatmapImage = document.getElementById('heatmap-image');
-        const heatmapCanvas = document.getElementById('heatmap-canvas');
-        const heatmapStatus = document.getElementById('heatmap-status');
-        const closeHeatmapModalBtn = document.getElementById('close-heatmap-modal-btn');
-        
-        // --- Core Functions (Dil, State Yönetimi vs.) ---
-        // ... (mevcut fonksiyonlarınızda değişiklik yok)
-        
-        function displayBatchResults() {
-            // ... (bu fonksiyonun mevcut içeriği büyük ölçüde aynı)
-            
-            // Thumbnail galerisi oluşturulurken yapılan DEĞİŞİKLİK
-            if (batchResults.length > 1) {
-                detailedResultsEl.style.display = 'block';
-                batchResults.forEach((result, index) => {
-                    const thumb = document.createElement('img');
-                    thumb.src = result.imageSrc;
-                    thumb.className = 'thumbnail';
-                    // ... (outlier tespiti vs. aynı kalıyor)
-                    
-                    // --- DEĞİŞİKLİK BURADA BAŞLIYOR ---
-                    // Önceki onclick içeriğini koru
-                    thumb.onclick = () => {
-                        document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
-                        thumb.classList.add('active');
-                        const individualPredictions = result.predictions;
-                        const topIndividual = renderPredictionUI(individualPredictions, `${translations[currentLang].resultForImage} ${index + 1}`);
-                        updateTumorInfo(topIndividual);
-                        
-                        // YENİ: Heatmap oluşturma fonksiyonunu ÇAĞIR
-                        generateAndShowHeatmap(result.imageSrc);
-                    };
-                    // --- DEĞİŞİKLİK BURADA BİTİYOR ---
-                    
-                    thumbnailGallery.appendChild(thumb);
-                });
-            } else if (batchResults.length === 1) {
-                 detailedResultsEl.style.display = 'none';
-                 // YENİ: Tek resim varsa da heatmap'i etkinleştir
-                 const singleImageResult = document.createElement('img');
-                 singleImageResult.src = batchResults[0].imageSrc;
-                 // ... bu kısım daha sonra daha şık hale getirilebilir, şimdilik önemli olan heatmap
-            } else {
-                 detailedResultsEl.style.display = 'none';
-            }
-            // ... (fonksiyonun geri kalanı aynı)
+    // --- State Yönetimi ---
+    function showState(stateName) {
+        Object.values(states).forEach(state => state.classList.remove('active'));
+        states[stateName]?.classList.add('active');
+    }
+
+    // --- Model Yükleme ---
+    async function loadModel() {
+        try {
+            model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+            console.log("Model başarıyla yüklendi.");
+        } catch (error) {
+            console.error("Model yüklenemedi:", error);
+            showState('error');
+            document.querySelector('#error-state .file-status').textContent = "Model yüklenemedi. Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.";
         }
+    }
 
-        // --- HEATMAP İÇİN YENİ FONKSİYONLAR ---
+    // --- Analiz ve Dosya İşlemleri ---
+    function handleFiles(files) {
+        const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/"));
+        if (imageFiles.length === 0) {
+            showState('error');
+            return;
+        }
+        runBatchAnalysis(imageFiles);
+    }
+    
+    async function runBatchAnalysis(files) {
+        batchResults = []; 
+        invalidImages = []; 
+        showState('uploading');
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            fileNameEl.textContent = `Analiz ediliyor: ${i + 1} / ${files.length}`;
+            fileStatusEl.textContent = file.name;
+            progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
 
-        async function generateAndShowHeatmap(imageSrc) {
-            heatmapModal.classList.add('visible');
-            heatmapStatus.textContent = translations[currentLang].heatmapGenerating;
-            heatmapImage.src = imageSrc;
-
-            // Canvas'ı temizle
-            const ctx = heatmapCanvas.getContext('2d');
-            ctx.clearRect(0, 0, heatmapCanvas.width, heatmapCanvas.height);
-
-            // Görüntünün yüklenmesini bekle
-            await new Promise(resolve => {
-                heatmapImage.onload = resolve;
-                if (heatmapImage.complete) resolve();
+            const imageSrc = await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+            const img = await new Promise(resolve => {
+                const image = new Image();
+                image.src = imageSrc;
+                image.onload = () => resolve(image);
             });
             
-            heatmapCanvas.width = heatmapImage.clientWidth;
-            heatmapCanvas.height = heatmapImage.clientHeight;
+            const predictions = await model.predict(img);
+            const topPred = predictions.sort((a,b) => b.probability - a.probability)[0];
             
-            try {
-                const underlyingModel = model.model;
-                const targetLayerName = 'conv_pw_13_relu'; // En yaygın hedef katman
-                const targetLayer = underlyingModel.layers.find(layer => layer.name === targetLayerName);
+            if(topPred.probability >= CONFIDENCE_THRESHOLD){ 
+                batchResults.push({ imageSrc, predictions }); 
+            } else { 
+                invalidImages.push(imageSrc); 
+            }
+        }
+        displayBatchResults();
+    }
 
-                if (!targetLayer) {
-                    heatmapStatus.textContent = translations[currentLang].heatmapError;
-                    return;
-                }
+    // --- Sonuçları Gösterme ---
+    function displayBatchResults() {
+        showState('result');
+        const resultContainer = states.result;
+        let resultHTML = '<div id="result-content">';
 
-                const activationModel = tf.model({
-                    inputs: underlyingModel.inputs,
-                    outputs: [targetLayer.output, underlyingModel.output]
+        if (batchResults.length > 0) {
+            // Ortalama sonuçları hesapla (opsiyonel, şimdilik ilk resmin sonucunu gösterelim)
+            const firstResultPreds = batchResults[0].predictions.map(p => ({...p, probability: p.probability * 100}));
+            const topPrediction = firstResultPreds.sort((a,b) => b.probability - a.probability)[0];
+
+            resultHTML += `<h3 class="results-title">Analiz Sonuçları</h3>`;
+            firstResultPreds.forEach((p, index) => {
+                resultHTML += `
+                    <div class="prediction-item ${index === 0 ? 'top-prediction' : ''}">
+                        <div class="prediction-label">${p.className}</div>
+                        <div class="prediction-bar-bg">
+                            <div class="prediction-bar" style="width: ${p.probability.toFixed(1)}%; background-color: ${index === 0 ? 'var(--success-color)' : 'var(--accent-color)'};">${p.probability.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Detaylı Döküm
+            if (batchResults.length > 0) {
+                resultHTML += `<h3 class="results-title" style="font-size: 18px; margin-top: 20px;">Detaylı Döküm</h3>`;
+                resultHTML += `<div class="thumbnail-gallery">`;
+                batchResults.forEach((result, index) => {
+                    resultHTML += `<img src="${result.imageSrc}" class="thumbnail" data-index="${index}">`;
                 });
-
-                const imageTensor = tf.tidy(() => {
-                    const tensor = tf.browser.fromPixels(heatmapImage).toFloat();
-                    const offset = tf.scalar(127.5);
-                    return tensor.sub(offset).div(offset).expandDims();
-                });
-
-                function getGrads() {
-                    return tf.tidy(() => {
-                        const [convOutput, predictions] = activationModel.predict(imageTensor);
-                        const topClassIndex = predictions.argMax(-1).dataSync()[0];
-                        const topClassScore = predictions.gather([topClassIndex], 1);
-                        const grads = tf.grad(p => p.sum())(topClassScore, convOutput);
-                        return { convOutput: convOutput.squeeze(), grads: grads.squeeze() };
-                    });
-                }
-
-                const { convOutput, grads } = getGrads();
-
-                const heatmapTensor = tf.tidy(() => {
-                    const weights = tf.mean(grads, [0, 1]);
-                    const weightedActivations = convOutput.mul(weights);
-                    let heatmap = tf.sum(weightedActivations, -1);
-                    heatmap = heatmap.sub(tf.min(heatmap));
-                    heatmap = heatmap.div(tf.max(heatmap));
-                    return heatmap;
-                });
-                
-                await drawHeatmapOnCanvas(heatmapTensor);
-                heatmapStatus.textContent = translations[currentLang].heatmapReady;
-                
-                tf.dispose([imageTensor, heatmapTensor, convOutput, grads]);
-
-            } catch (error) {
-                heatmapStatus.textContent = `Error: ${error.message}`;
-                console.error("Heatmap Error:", error);
+                resultHTML += `</div>`;
             }
         }
 
-        async function drawHeatmapOnCanvas(heatmap) {
-            const resizedHeatmapData = await tf.image.resizeBilinear(heatmap.expandDims(-1), [heatmapCanvas.height, heatmapCanvas.width]).data();
-            const ctx = heatmapCanvas.getContext('2d');
-            const colors = [ [0, 0, 0], [0, 0, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0] ];
-            
-            function getColor(value) {
-                const scaledValue = value * (colors.length - 1);
-                const i = Math.floor(scaledValue);
-                const j = Math.ceil(scaledValue);
-                const frac = scaledValue - i;
-                const r = Math.round(colors[i][0] + (colors[j][0] - colors[i][0]) * frac);
-                const g = Math.round(colors[i][1] + (colors[j][1] - colors[i][1]) * frac);
-                const b = Math.round(colors[i][2] + (colors[j][2] - colors[i][2]) * frac);
-                return [r, g, b];
-            }
-
-            const imageData = ctx.createImageData(heatmapCanvas.width, heatmapCanvas.height);
-            for (let i = 0; i < resizedHeatmapData.length; i++) {
-                const [r, g, b] = getColor(resizedHeatmapData[i]);
-                imageData.data[i * 4] = r;
-                imageData.data[i * 4 + 1] = g;
-                imageData.data[i * 4 + 2] = b;
-                imageData.data[i * 4 + 3] = 255; // Tam opaklık
-            }
-            ctx.putImageData(imageData, 0, 0);
+        if (invalidImages.length > 0) {
+            resultHTML += `<h3 class="results-title" style="font-size: 16px; color: var(--warning-color); margin-top: 20px;">Analiz İçin Uygun Değil</h3>`;
+            resultHTML += `<div class="thumbnail-gallery">`;
+            invalidImages.forEach(src => {
+                resultHTML += `<img src="${src}" class="thumbnail" style="opacity: 0.5; cursor: default;">`;
+            });
+            resultHTML += `</div>`;
         }
         
-        // --- Event Listeners & Initializers ---
-        // ... (mevcut olay dinleyicileriniz)
-        closeAboutModalBtn.addEventListener('click', () => aboutModal.classList.remove('visible'));
+        if (batchResults.length === 0 && invalidImages.length > 0) {
+            resultHTML += `<p>Yüklenen resimlerin hiçbiri analiz için uygun bulunmadı.</p>`;
+        } else if (batchResults.length === 0 && invalidImages.length === 0) {
+             resultHTML += `<p>Analiz edilecek sonuç bulunamadı.</p>`;
+        }
 
-        // YENİ: Heatmap modalı için olay dinleyicileri
-        closeHeatmapModalBtn.addEventListener('click', () => heatmapModal.classList.remove('visible'));
-        heatmapModal.addEventListener('click', (e) => {
-            if (e.target === heatmapModal) {
-                heatmapModal.classList.remove('visible');
-            }
+
+        resultHTML += `</div><div class="result-buttons" style="margin-top: 24px;"><button id="scan-another-btn" class="btn btn-primary">Başka Görüntü Tara</button></div>`;
+        resultContainer.innerHTML = resultHTML;
+        
+        // Sonradan eklenen butonlar için event listener'ları yeniden ata
+        document.getElementById('scan-another-btn').addEventListener('click', resetApp);
+        document.querySelectorAll('.thumbnail[data-index]').forEach(thumb => {
+            thumb.addEventListener('click', (e) => {
+                const index = e.target.dataset.index;
+                generateAndShowHeatmap(batchResults[index].imageSrc);
+            });
         });
+    }
 
-        // ... (sayfa yüklendiğinde çalışan kodlarınız)
-        loadModel();
+    function resetApp() {
+        fileInput.value = '';
+        showState('default');
+    }
 
-        // NOT: Buraya tüm `translations`, `displayBatchResults` gibi diğer tüm JS fonksiyonlarınızı eksiksiz olarak eklemeniz gerekmektedir.
-        // Bu kod parçası, projenize heatmap özelliğini eklemek için gereken DEĞİŞİKLİKLERİ ve YENİ EKLENTİLERİ göstermektedir.
-        // Yukarıdaki HTML'in <script> etiketinin içine kendi JavaScript kodunuzun tamamını, bu yeni fonksiyonlar ve değişikliklerle birleştirerek yapıştırmalısınız.
-        // Anlaşılırlık için önceki kodunuzdaki fonksiyonları buraya tekrar eklemedim.
-    </script>
+    // --- Heatmap Fonksiyonları ---
+    async function generateAndShowHeatmap(imageSrc) {
+        heatmapModal.classList.add('visible');
+        heatmapStatus.textContent = "Isı Haritası Oluşturuluyor...";
+        heatmapImage.src = imageSrc;
+
+        await new Promise(resolve => {
+            heatmapImage.onload = resolve;
+            if (heatmapImage.complete) resolve();
+        });
+        
+        heatmapCanvas.width = heatmapImage.clientWidth;
+        heatmapCanvas.height = heatmapImage.clientHeight;
+
+        try {
+            const underlyingModel = model.model;
+            const targetLayerName = 'conv_pw_13_relu';
+            const targetLayer = underlyingModel.layers.find(layer => layer.name === targetLayerName);
+
+            if (!targetLayer) {
+                heatmapStatus.textContent = "Hata: Isı haritası için uygun katman bulunamadı.";
+                return;
+            }
+
+            const activationModel = tf.model({
+                inputs: underlyingModel.inputs,
+                outputs: [targetLayer.output, underlyingModel.output]
+            });
+
+            const imageTensor = tf.tidy(() => {
+                const tensor = tf.browser.fromPixels(heatmapImage).toFloat();
+                const offset = tf.scalar(127.5);
+                return tensor.sub(offset).div(offset).expandDims();
+            });
+
+            const { convOutput, grads } = tf.tidy(() => {
+                function getGrads() {
+                    const [convOutput, predictions] = activationModel.predict(imageTensor);
+                    const topClassIndex = predictions.argMax(-1).dataSync()[0];
+                    const topClassScore = predictions.gather([topClassIndex], 1);
+                    const grads = tf.grad(p => p.sum())(topClassScore, convOutput);
+                    return { convOutput: convOutput.squeeze(), grads: grads.squeeze() };
+                }
+                return getGrads();
+            });
+
+            const heatmapTensor = tf.tidy(() => {
+                const weights = tf.mean(grads, [0, 1]);
+                const weightedActivations = convOutput.mul(weights);
+                let heatmap = tf.sum(weightedActivations, -1);
+                heatmap = heatmap.sub(tf.min(heatmap));
+                heatmap = heatmap.div(tf.max(heatmap));
+                return heatmap;
+            });
+            
+            await drawHeatmapOnCanvas(heatmapTensor);
+            heatmapStatus.textContent = "Isı Haritası hazır.";
+            
+            tf.dispose([imageTensor, heatmapTensor, convOutput, grads]);
+        } catch (error) {
+            heatmapStatus.textContent = `Hata: ${error.message}`;
+            console.error("Heatmap Hatası:", error);
+        }
+    }
+    
+    async function drawHeatmapOnCanvas(heatmap) {
+        const resizedHeatmapData = await tf.image.resizeBilinear(heatmap.expandDims(-1), [heatmapCanvas.height, heatmapCanvas.width]).data();
+        const ctx = heatmapCanvas.getContext('2d');
+        const colors = [ [0, 0, 0], [0, 0, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0] ];
+        
+        function getColor(value) {
+            const scaledValue = value * (colors.length - 1);
+            const i = Math.floor(scaledValue);
+            const j = Math.ceil(scaledValue);
+            const frac = scaledValue - i;
+            const r = Math.round(colors[i][0] + (colors[j][0] - colors[i][0]) * frac);
+            const g = Math.round(colors[i][1] + (colors[j][1] - colors[i][1]) * frac);
+            const b = Math.round(colors[i][2] + (colors[j][2] - colors[i][2]) * frac);
+            return [r, g, b];
+        }
+
+        const imageData = ctx.createImageData(heatmapCanvas.width, heatmapCanvas.height);
+        for (let i = 0; i < resizedHeatmapData.length; i++) {
+            const [r, g, b] = getColor(resizedHeatmapData[i]);
+            imageData.data[i * 4] = r;
+            imageData.data[i * 4 + 1] = g;
+            imageData.data[i * 4 + 2] = b;
+            imageData.data[i * 4 + 3] = 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+    }
+    
+    // --- Olay Dinleyicileri ---
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; });
+    dropZone.addEventListener('dragleave', (e) => { dropZone.style.backgroundColor = 'transparent'; });
+    dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.style.backgroundColor = 'transparent'; handleFiles(e.dataTransfer.files); });
+    tryAgainBtn.addEventListener('click', resetApp);
+    
+    // Heatmap Modal Olay Dinleyicileri
+    closeHeatmapModalBtn.addEventListener('click', () => heatmapModal.classList.remove('visible'));
+    heatmapModal.addEventListener('click', (e) => { if (e.target === heatmapModal) { heatmapModal.classList.remove('visible'); } });
+
+    // --- Başlatma ---
+    loadModel();
+</script>
 </body>
 </html>
