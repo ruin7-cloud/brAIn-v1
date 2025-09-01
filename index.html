@@ -58,7 +58,7 @@
         .login-card h3 { margin-top: 0; color: var(--primary-text); }
         .login-card input, .patient-form input { width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--primary-text); box-sizing: border-box; font-size: 16px; }
         .login-card #login-error { color: var(--error-color); min-height: 20px; font-size: 14px; }
-        .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; }
+        .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; display:flex; align-items:center; justify-content:center; gap: 8px;}
         .btn:disabled { background-color: var(--secondary-text); cursor: not-allowed; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
         .btn-secondary { background-color: var(--border-color); color: var(--primary-text); }
@@ -75,7 +75,7 @@
         #history-back-btn { margin-bottom: 15px; cursor: pointer; display: none; font-weight: 600; }
         .upload-title { font-size: 18px; font-weight: 600; margin: 0; text-align: center; }
         .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; text-align: center; }
-        #drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px; margin-top: 20px; cursor: pointer; transition: background-color .2s ease; text-align: center; }
+        #drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 20px; cursor: pointer; transition: background-color .2s ease; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         #drop-zone:hover { background-color: rgba(255,255,255,0.1); }
         .file-info-card { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
         .file-details { overflow: hidden; }
@@ -108,6 +108,9 @@
                 <span>|</span>
                 <a href="#" class="lang-link" data-lang="tr">TR</a>
             </div>
+            <button id="about-btn" title="Proje Hakkında">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 15c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1zm1-8h-2V7h2v2z"/></svg>
+            </button>
         </div>
         <header class="header">
             <button id="history-btn" class="header-btn" style="display: none;" title="Geçmiş Analizler">
@@ -128,15 +131,17 @@
             <ul id="history-list" class="history-list"></ul>
         </div>
     </div>
+    <div id="about-modal" class="modal-overlay"></div>
+    <div id="pdf-render-container" style="position: absolute; left: -9999px; top: 0;"></div>
     
 <script>
     // --- SABİTLER ve GLOBAL DEĞİŞKENLER ---
     const CORRECT_PASSWORD = '1234';
     const URL = "./model/";
     const CONFIDENCE_THRESHOLD = 0.81;
-    let userRole, model, currentPatient, currentLang, currentResultId;
+    let userRole, model, currentPatient, currentLang, currentResultId, webcamStream;
     let batchResults = [], invalidImages = [];
-    // --- Buraya v2'deki translations objesi gelecek ---
+    const { jsPDF } = window.jspdf;
     
     // --- DOM ELEMENTLERİ ---
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -146,6 +151,24 @@
     const newPatientBtn = document.getElementById('new-patient-btn');
     const historyPanel = document.getElementById('history-panel');
     const mainCard = document.getElementById('main-card');
+    const aboutModal = document.getElementById('about-modal');
+
+    // --- ÇEVİRİ OBJESİ (v2'den alındı) ---
+    const translations = {
+        en: {
+            headerSubtitle: "Tumor Classifier", professionalSubtitle: "Professional Panel", patientSubtitle: "Personal Panel", uploadTitle: "Upload your MRI Scans", uploadSubtitle: "Select multiple files or use your camera", btnChooseFiles: "Choose Files", btnUseCamera: "Use Camera", disclaimerTitle: "WARNING:", disclaimerText: "This project is under development. The results may not be 100% accurate and should absolutely not be used for medical diagnosis or treatment.", errorTitle: "Error", errorText: "Please upload valid image files.", btnTryAgain: "Try Again", avgResultTitle: "Average Result", detailedBreakdown: "Detailed Breakdown", resultForImage: "Result for: Image", noConfidentResult: "No confident prediction could be made.", btnDownloadReport: "Download Report", btnScanAnother: "Scan Another", btnCancel: "Cancel", btnCaptureImage: "Capture Image", analyzingText: "Analyzing", ofText: "of", fromCameraText: "from Camera", creatingPdf: "Creating PDF...", pdfReportTitle: "brAIn Analysis Report", pdfReportDate: "Report Date", pdfAnalysisId: "Analysis ID", pdfAvgResult: "Average Result", pdfDetailedBreakdown: "Detailed Breakdown", pdfImage: "Image", confidenceScore: "Overall Confidence Score", invalidImagesTitle: "Unsuitable for Analysis", invalidImagesText: "The following images were not recognized as brain MRIs and were excluded from the average result.", aboutTitle: "About this Project", aboutDesc1: "This tool is an AI-powered brain tumor classifier designed as a proof-of-concept. It utilizes a deep learning model to analyze brain MRI scans and predict one of seven categories, including several tumor types and healthy scans.", techUsed: "Technologies Used:", techDesc1: "For running the machine learning model directly in the browser.", techDesc2: "For training the custom image classification model.", techDesc3: "Powered by Google's advanced AI research and infrastructure.", developer: "Developer:", yourName: "Isa Sahin", important: "Important:", aboutDisclaimer: "This tool is for educational and research purposes only and is not a substitute for professional medical advice.", btnClose: "Close",
+            patientNameLabel: "Patient Name", patientSurnameLabel: "Patient Surname", newAnalysisTitle: "Start New Analysis", patientInfoPrompt: "Please enter patient information before starting the analysis.", continueToAnalysisBtn: "Continue to Analysis Screen",
+            analysisSummaryTitle: "Analysis Summary", patientWarning: "<strong>Important Disclaimer:</strong> These results are not a medical diagnosis and are only an AI prediction. Please consult a healthcare professional to interpret these findings.",
+            tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://en.wikipedia.org/wiki/Glioblastoma", description: "One of the most aggressive brain tumors. It tends to grow and spread rapidly." }, "Menengiom": { name: "Meningioma", link: "https://en.wikipedia.org/wiki/Meningioma", description: "A generally slow-growing and benign tumor that originates from the meninges, the membranes surrounding the brain and spinal cord." }, "Oligodendrogliom": { name: "Oligodendroglioma", link: "https://en.wikipedia.org/wiki/Oligodendroglioma", description: "A type of tumor that develops from oligodendrocytes, cells that support nerve cells in the brain." }, "Pituitary": { name: "Pituitary Tumor", link: "https://en.wikipedia.org/wiki/Pituitary_adenoma", description: "A usually benign tumor that develops in the pituitary gland at the base of the brain." }, "CVM": { name: "Cerebral Vascular Malformation (CVM)", link: "https://en.wikipedia.org/wiki/Vascular_malformation", description: "A congenital blood vessel abnormality. It is not a true tumor but can lead to serious problems like bleeding or seizures." }, "AVM": { name: "Arteriovenous Malformation (AVM)", link: "https://en.wikipedia.org/wiki/Arteriovenous_malformation", description: "An abnormal connection between arteries and veins. It carries a risk of bleeding due to high pressure." }, "Healthy": { name: "Healthy", link: "", description: "No tumor or significant anomaly was detected in the analyzed MRI scan. This result does not substitute for a definitive medical diagnosis." } }
+        },
+        tr: {
+            headerSubtitle: "Tümör Sınıflandırıcı", professionalSubtitle: "Profesyonel Panel", patientSubtitle: "Kişisel Panel", uploadTitle: "MR Taramalarınızı Yükleyin", uploadSubtitle: "Birden fazla dosya seçin veya kameranızı kullanın", btnChooseFiles: "Dosya Seç", btnUseCamera: "Kamera Kullan", disclaimerTitle: "UYARI:", disclaimerText: "Bu proje geliştirme aşamasındadır. Sonuçlar %100 doğruluk sunmayabilir ve kesinlikle tıbbi tanı veya tedavi amacıyla kullanılamaz.", errorTitle: "Hata", errorText: "Lütfen geçerli resim dosyaları yükleyin.", btnTryAgain: "Tekrar Dene", avgResultTitle: "Ortalama Sonuç", detailedBreakdown: "Detaylı Döküm", resultForImage: "Sonuç: Görüntü", noConfidentResult: "Yeterli kesinlikte bir sonuç bulunamadı.", btnDownloadReport: "Raporu İndir", btnScanAnother: "Yeni Analiz Yap", btnCancel: "İptal", btnCaptureImage: "Fotoğraf Çek", analyzingText: "Analiz ediliyor", ofText: "/", fromCameraText: "Kameradan", creatingPdf: "PDF Oluşturuluyor...", pdfReportTitle: "brAIn Analiz Raporu", pdfReportDate: "Rapor Tarihi", pdfAnalysisId: "Analiz ID", pdfAvgResult: "Ortalama Sonuç", pdfDetailedBreakdown: "Detaylı Döküm", pdfImage: "Görüntü", confidenceScore: "Genel Güven Skoru", invalidImagesTitle: "Analiz İçin Uygun Değil", invalidImagesText: "Aşağıdaki görüntüler beyin MR'ı olarak algılanamadı ve ortalama sonuca dahil edilmedi.", 
+            aboutTitle: "Proje Hakkında", aboutDesc1: "Bu araç, konsept kanıtlama amacıyla tasarlanmış yapay zeka destekli bir beyin tümörü sınıflandırıcısıdır. Beyin MR'larını analiz etmek ve çeşitli tümör türleri ile sağlıklı taramalar dahil olmak üzere yedi kategoriden birini tahmin etmek için bir derin öğrenme modeli kullanır.", techUsed: "Kullanılan Teknolojiler:", techDesc1: "Makine öğrenmesi modelini doğrudan tarayıcıda çalıştırmak için.", techDesc2: "Özel görüntü sınıflandırma modelini eğitmek için.", techDesc3: "Google'ın gelişmiş yapay zeka araştırma ve altyapısı tarafından desteklenmektedir.", developer: "Geliştirici:", yourName: "Isa Sahin", important: "Önemli:", aboutDisclaimer: "Bu araç yalnızca eğitim ve araştırma amaçlıdır ve profesyonel tıbbi tavsiye yerine geçmez.", btnClose: "Kapat",
+            patientNameLabel: "Hasta Adı", patientSurnameLabel: "Hasta Soyadı", newAnalysisTitle: "Yeni Analiz Başlat", patientInfoPrompt: "Lütfen analize başlamadan önce hasta bilgilerini girin.", continueToAnalysisBtn: "Analiz Ekranına Geç",
+            analysisSummaryTitle: "Analiz Özeti", patientWarning: "<strong>Önemli Uyarı:</strong> Bu sonuçlar tıbbi bir tanı değildir ve sadece bir yapay zeka tahminidir. Lütfen bulguları mutlaka bir sağlık profesyoneli ile görüşün.",
+            tumorDescriptions: { "GBM": { name: "Glioblastoma Multiforme (GBM)", link: "https://tr.wikipedia.org/wiki/Glioblastoma", description: "En agresif beyin tümörlerinden biridir." }, "Menengiom": { name: "Menenjiyom", link: "https://tr.wikipedia.org/wiki/Menenjiyom", description: "Genellikle yavaş büyüyen ve iyi huylu bir tümördür." }, "Oligodendrogliom": { name: "Oligodendrogliom", link: "https://tr.wikipedia.org/wiki/Oligodendrogliom", description: "Oligodendrosit hücrelerinden gelişen bir tümör türüdür." }, "Pituitary": { name: "Hipofiz Tümörü (Pituitary)", link: "https://tr.wikipedia.org/wiki/Hipofiz_adenomu", description: "Hipofiz bezinde gelişen, genellikle iyi huylu bir tümördür." }, "CVM": { name: "Serebral Vasküler Malformasyon (CVM)", link: "https://tr.wikipedia.org/wiki/Vask%C3%BCler_malformasyon", description: "Doğuştan gelen bir kan damarı anomalisidir." }, "AVM": { name: "Arteriyovenöz Malformasyon (AVM)", link: "https://tr.wikipedia.org/wiki/Arteriyoven%C3%B6z_malformasyon", description: "Atardamarlar ve toplardamarlar arasında anormal bir bağlantıdır." }, "Healthy": { name: "Sağlıklı (Healthy)", link: "", description: "Analiz edilen MR görüntüsünde herhangi bir tümör veya belirgin bir anomali tespit edilmemiştir." } }
+        }
+    };
 
     // --- YÖNLENDİRME (ROUTING) ---
     const routes = { '/': 'welcome-screen', '/patient': 'app-container', '/professional': 'app-container' };
@@ -153,12 +176,12 @@
         const path = window.location.hash.substring(1) || '/';
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.body.className = '';
-        
         const viewId = routes[path];
         if (viewId) {
             document.getElementById(viewId).classList.add('active');
             if (viewId === 'welcome-screen') {
                 document.body.style.backgroundColor = 'var(--base-bg)';
+                currentPatient = null;
             } else {
                 userRole = path.substring(1);
                 initializeAppForRole(userRole);
@@ -167,15 +190,14 @@
             navigate('/');
         }
     }
-    function navigate(path) {
-        window.location.hash = path;
-    }
+    function navigate(path) { window.location.hash = path; }
 
     // --- UYGULAMA BAŞLATMA ---
     function initializeAppForRole(selectedRole) {
         userRole = selectedRole;
         document.body.classList.add(userRole === 'patient' ? 'theme-patient' : 'theme-professional');
-        document.getElementById('app-subtitle').textContent = userRole === 'patient' ? 'Kişisel Panel' : 'Profesyonel Panel';
+        const subtitleKey = userRole === 'patient' ? 'patientSubtitle' : 'professionalSubtitle';
+        document.getElementById('app-subtitle').setAttribute('data-key', subtitleKey);
         
         historyBtn.style.display = 'block';
         newPatientBtn.style.display = userRole === 'professional' ? 'block' : 'none';
@@ -183,30 +205,93 @@
         if (userRole === 'patient') {
             loadUploaderInterface();
         } else {
-            loadPatientInfoInterface();
+            if (!currentPatient) {
+                loadPatientInfoInterface();
+            } else {
+                loadUploaderInterface();
+            }
         }
         if (!model) loadModel();
+        changeLanguage(localStorage.getItem('brain-lang') || 'tr');
     }
     
     // --- ARAYÜZ YÜKLEYİCİLERİ ---
     function loadPatientInfoInterface() {
-        currentPatient = null; // Yeni hasta girişi için önceki hastayı temizle
-        mainCard.innerHTML = `<div id="patient-info-state" class="state active"><h3 class="upload-title">Yeni Analiz Başlat</h3><p class="upload-subtitle">Lütfen analize başlamadan önce hasta bilgilerini girin.</p><div class="patient-form" style="margin-top: 20px; text-align: left;"><label>Hasta Adı</label><input type="text" id="patient-name" placeholder="örn: Ahmet"><label>Hasta Soyadı</label><input type="text" id="patient-surname" placeholder="örn: Yılmaz"><button id="start-analysis-btn" class="btn btn-primary" style="margin-top: 10px;" disabled>Analiz Ekranına Geç</button></div></div>`;
+        currentPatient = null;
+        mainCard.innerHTML = `<div id="patient-info-state" class="state active"><h3 class="upload-title" data-key="newAnalysisTitle"></h3><p class="upload-subtitle" data-key="patientInfoPrompt"></p><div class="patient-form" style="margin-top: 20px; text-align: left;"><label data-key="patientNameLabel"></label><input type="text" id="patient-name"><label data-key="patientSurnameLabel"></label><input type="text" id="patient-surname"><button id="start-analysis-btn" class="btn btn-primary" style="margin-top: 10px;" disabled><span data-key="continueToAnalysisBtn"></span></button></div></div>`;
         attachPatientInfoListeners();
+        changeLanguage(currentLang);
     }
 
     function loadUploaderInterface() {
-        mainCard.innerHTML = `<div id="default-state" class="state active"><h3 class="upload-title">${userRole === 'professional' && currentPatient ? `${currentPatient.name} için Taramaları Yükleyin` : 'MR Taramalarınızı Yükleyin'}</h3><p class="upload-subtitle">Analiz için bir veya daha fazla dosya seçin</p><label for="file-input" id="drop-zone"><p>Dosyaları Buraya Sürükleyin veya Tıklayın</p></label><input type="file" id="file-input" accept="image/*" multiple style="display:none;"></div><div id="uploading-state" class="state"><div class="file-info-card"><div class="file-details"><div id="file-status"></div></div></div><div class="progress-bar-container"><div id="progress-bar" style="width: 0%;"></div></div></div><div id="result-state" class="state"></div>`;
+        const title = userRole === 'professional' && currentPatient ? `${currentPatient.name} için Taramaları Yükleyin` : translations[currentLang]?.uploadTitle || 'MR Taramalarınızı Yükleyin';
+        mainCard.innerHTML = `<div id="default-state" class="state active"><h3 class="upload-title">${title}</h3><p class="upload-subtitle" data-key="uploadSubtitle"></p><div class="upload-options" style="margin-top:20px;"><label for="file-input" id="drop-zone"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg><span data-key="btnChooseFiles"></span></label><button id="camera-btn" class="btn btn-secondary"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 11.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 6.5 12 6.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg><span data-key="btnUseCamera"></span></button></div><input type="file" id="file-input" accept="image/*" multiple style="display:none;"></div><div id="uploading-state" class="state"><div class="file-info-card"><div class="file-details"><div id="file-name" class="file-name"></div><div id="file-status"></div></div></div><div class="progress-bar-container"><div id="progress-bar" style="width: 0%;"></div></div></div><div id="result-state" class="state"></div><div id="error-state" class="state"><div class="file-info-card"><div class="file-details"><div class="file-name" data-key="errorTitle"></div><div class="file-status" data-key="errorText"></div></div></div><button id="try-again-btn" class="btn btn-primary"><span data-key="btnTryAgain"></span></button></div>`;
         attachUploaderListeners();
+        changeLanguage(currentLang);
+    }
+
+    // --- DİL FONKSİYONLARI ---
+    function setText(el, key) { if (el) { const text = translations[currentLang][key]; if(text !== undefined) el.textContent = text; } }
+    function changeLanguage(lang) {
+        if (!translations[lang]) return;
+        currentLang = lang;
+        localStorage.setItem('brain-lang', lang);
+        document.documentElement.lang = lang;
+        document.querySelectorAll('[data-key]').forEach(el => setText(el, el.dataset.key));
+        document.querySelectorAll('.lang-link').forEach(link => link.classList.toggle('active', link.dataset.lang === lang));
+        if (document.getElementById('result-state').classList.contains('active')) { displayBatchResults(); }
     }
 
     // --- MODEL ve ANALİZ ---
-    async function loadModel() { /* ... v2'deki loadModel fonksiyonu ... */ }
-    async function runBatchAnalysis(files) { /* ... v2'deki runBatchAnalysis fonksiyonu ... */ }
+    async function loadModel() { 
+        console.log("Model yükleniyor...");
+        try { 
+            model = await tmImage.load(URL + "model.json", URL + "metadata.json"); 
+            console.log("Model başarıyla yüklendi.");
+        } catch (error) { 
+            console.error("Model yüklenemedi:", error); 
+            const errorStatus = document.querySelector('#error-state .file-status');
+            if(errorStatus) errorStatus.textContent = "Model yüklenemedi. 'model' klasörünün doğru yerde olduğundan emin olun.";
+            showState('error');
+        } 
+    }
+    
+    function showState(stateName) { 
+        mainCard.querySelectorAll('.state').forEach(s => s.classList.remove('active')); 
+        const targetState = mainCard.querySelector(`#${stateName}`);
+        if(targetState) targetState.classList.add('active');
+    }
 
-    // --- SONUÇ GÖSTERME (ROLE GÖRE) ---
+    async function runBatchAnalysis(files) {
+        batchResults = []; 
+        invalidImages = []; 
+        currentResultId = null; 
+        showState('uploading');
+        
+        const fileNameEl = document.getElementById('file-name');
+        const fileStatusEl = document.getElementById('file-status');
+        const progressBar = document.getElementById('progress-bar');
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            setText(fileNameEl, 'analyzingText');
+            fileStatusEl.textContent = `${i + 1} ${translations[currentLang].ofText} ${files.length}: ${file.name}`;
+            progressBar.style.width = `${((i + 1) / files.length) * 100}%`;
+            const imageSrc = await new Promise(resolve => { const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.readAsDataURL(file); });
+            const img = await new Promise(resolve => { const image = new Image(); image.src = imageSrc; image.onload = () => resolve(image); });
+            const predictions = await model.predict(img);
+            const topPred = predictions.sort((a,b) => b.probability - a.probability)[0];
+            if(topPred.probability >= CONFIDENCE_THRESHOLD){ 
+                batchResults.push({ imageSrc, predictions }); 
+            } else { 
+                invalidImages.push(imageSrc); 
+            }
+        }
+        displayBatchResults();
+    }
+    
+    // --- SONUÇ GÖSTERME ---
     function displayBatchResults(data) {
-        // 'data' geçmişten geliyorsa, global değişkenleri güncelle
         if (data && data.id) {
             batchResults = data.data.valid;
             invalidImages = data.data.invalid;
@@ -214,42 +299,91 @@
         }
 
         const resultState = document.getElementById('result-state');
-        mainCard.querySelector('#default-state, #uploading-state')?.classList.remove('active');
-        resultState.classList.add('active');
-
+        showState('result');
+        
+        let htmlContent = '';
         if (userRole === 'patient') {
-            // ... HASTA SONUÇ EKRANI HTML'i ...
+            const topPred = batchResults.length > 0 ? batchResults.map(r => r.predictions.sort((a,b)=>b.probability-a.probability)[0]).reduce((a,b)=>a.probability>b.probability?a:b) : null;
+            htmlContent = `
+                <h3 class="upload-title" data-key="analysisSummaryTitle"></h3>
+                <p class="upload-subtitle" style="margin-top:20px;">Analiz edilen ${batchResults.length} görüntü arasında en yüksek olasılık <strong>${topPred ? (translations[currentLang].tumorDescriptions[topPred.className]?.name || topPred.className) : 'Belirlenemedi'}</strong> olarak tespit edilmiştir.</p>
+                <div class="patient-warning" data-key="patientWarning"></div>
+                <div class="result-buttons"><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div>`;
         } else { // professional
-            // ... PROFESYONEL SONUÇ EKRANI HTML'i (v2'den gelen tam detaylı kod) ...
+            htmlContent = `
+                <div id="result-content">
+                    <div id="confidence-score" class="confidence-score"></div>
+                    <h3 id="main-results-title" class="results-title"></h3>
+                    <div id="prediction-list" class="prediction-list"></div>
+                    <div id="tumor-info" class="tumor-info" style="display:none;"></div>
+                    <div id="detailed-results" class="detailed-results">
+                        <h3 class="results-title" style="font-size: 18px;" data-key="detailedBreakdown"></h3>
+                        <div id="thumbnail-gallery" class="thumbnail-gallery"></div>
+                    </div>
+                    <div id="invalid-images" class="invalid-images" style="display: none;">
+                        <h3 class="results-title" style="font-size: 16px; color: var(--warning-color);" data-key="invalidImagesTitle"></h3>
+                        <p style="font-size: 12px; color: var(--secondary-text);" data-key="invalidImagesText"></p>
+                        <div id="invalid-thumbnail-gallery" class="thumbnail-gallery"></div>
+                    </div>
+                </div>
+                <div class="result-buttons">
+                    <button id="pdf-btn" class="btn btn-secondary"><span data-key="btnDownloadReport"></span></button>
+                    <button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button>
+                </div>`;
+        }
+        resultState.innerHTML = htmlContent;
+
+        if(userRole === 'professional' && batchResults.length > 0) {
+            const { overallScore, majorityClass } = calculateConfidence();
+            document.getElementById('confidence-score').innerHTML = `<strong>${translations[currentLang].confidenceScore}:</strong> <span style="color: ${overallScore > 75 ? 'var(--success-color)' : 'var(--warning-color)'}">${overallScore.toFixed(1)}%</span>`;
+
+            const classTotals = {};
+            model.getClassLabels().forEach(label => { classTotals[label] = 0; });
+            batchResults.forEach(result => { result.predictions.forEach(p => { classTotals[p.className] += p.probability; }); });
+            const averagePredictions = Object.entries(classTotals).map(([className, total]) => ({ className, probability: (total / batchResults.length) }));
+            const topAvgPrediction = renderPredictionUI(averagePredictions, translations[currentLang].avgResultTitle);
+            updateTumorInfo(topAvgPrediction);
+            
+            const thumbnailGallery = document.getElementById('thumbnail-gallery');
+            thumbnailGallery.innerHTML = '';
+            batchResults.forEach((result, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = result.imageSrc;
+                thumb.className = 'thumbnail';
+                const resultTopClass = result.predictions.sort((a,b) => b.probability - a.probability)[0].className;
+                if (batchResults.length > 1 && resultTopClass !== majorityClass) { thumb.classList.add('outlier'); }
+                thumb.onclick = () => {
+                    document.querySelectorAll('.thumbnail.active').forEach(t => t.classList.remove('active'));
+                    thumb.classList.add('active');
+                    const topIndividual = renderPredictionUI(result.predictions, `${translations[currentLang].resultForImage} ${index + 1}`);
+                    updateTumorInfo(topIndividual);
+                };
+                thumbnailGallery.appendChild(thumb);
+            });
+            document.querySelector('.thumbnail')?.click(); // İlkini aktif yap
         }
 
-        // Event listener'ları yeniden bağla
-        document.getElementById('scan-another-btn').addEventListener('click', () => {
-             if(userRole === 'professional') loadPatientInfoInterface();
-             else loadUploaderInterface();
-        });
-        if (userRole === 'professional') {
-            document.getElementById('pdf-btn').addEventListener('click', generatePDF);
+        const invalidGallery = document.getElementById('invalid-thumbnail-gallery');
+        if (invalidGallery) {
+             invalidImages.forEach(imgSrc => { const thumb = document.createElement('img'); thumb.src = imgSrc; thumb.className = 'thumbnail'; invalidGallery.appendChild(thumb); });
         }
-
-        if(userRole === 'patient' && !data) { // Sadece yeni analizleri kaydet
-            saveAnalysisToHistory();
-        } else if (userRole === 'professional' && currentPatient && !data) {
-            saveAnalysisToHistory();
-        }
+        
+        attachResultListeners();
+        changeLanguage(currentLang);
+        if(!data) saveAnalysisToHistory();
     }
 
     // --- GEÇMİŞ (HISTORY) ---
     function saveAnalysisToHistory() {
+        if (userRole !== 'patient' && !currentPatient) return;
         const storageKey = userRole === 'patient' ? 'brainPatientHistory' : 'brainProfessionalHistory';
         let history = JSON.parse(localStorage.getItem(storageKey)) || (userRole === 'patient' ? [] : {});
-        const topPred = batchResults.length > 0 ? batchResults[0].predictions.sort((a,b)=>b.probability-a.probability)[0].className : 'Belirsiz';
+        const topPred = batchResults.length > 0 ? batchResults.map(r => r.predictions.sort((a,b)=>b.probability-a.probability)[0]).reduce((a,b)=>a.probability>b.probability?a:b).className : 'Belirsiz';
         
         const analysisData = {
-            id: `res_${Date.now()}`,
-            date: new Date().toLocaleString('tr-TR'),
+            id: `res_${Date.now()}`, date: new Date().toLocaleString('tr-TR'),
             summary: `${batchResults.length} Görüntü - En Yüksek Tahmin: ${topPred}`,
-            data: { valid: batchResults, invalid: invalidImages }
+            data: { valid: JSON.parse(JSON.stringify(batchResults)), invalid: invalidImages }
         };
 
         if (userRole === 'patient') {
@@ -263,18 +397,129 @@
         }
         localStorage.setItem(storageKey, JSON.stringify(history));
     }
-    
-    // ... renderHistory, renderAnalysesForPatient, closeHistoryPanel fonksiyonları ...
+    function renderHistory() {
+        const historyList = document.getElementById('history-list');
+        const historyTitle = document.getElementById('history-title');
+        const historyBackBtn = document.getElementById('history-back-btn');
+        historyList.innerHTML = '';
+        historyBackBtn.style.display = 'none';
+        
+        if (userRole === 'patient') {
+            historyTitle.textContent = 'Geçmiş Analizlerim';
+            const history = JSON.parse(localStorage.getItem('brainPatientHistory')) || [];
+            if (history.length === 0) { historyList.innerHTML = '<li>Geçmiş analiz bulunamadı.</li>'; return; }
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `<div class="date">${item.date}</div><div class="summary">${item.summary}</div>`;
+                li.onclick = () => { displayBatchResults(item); historyPanel.classList.remove('visible'); };
+                historyList.appendChild(li);
+            });
+        } else {
+            historyTitle.textContent = 'Hasta Listesi';
+            const history = JSON.parse(localStorage.getItem('brainProfessionalHistory')) || {};
+            if (Object.keys(history).length === 0) { historyList.innerHTML = '<li>Kayıtlı hasta bulunamadı.</li>'; return; }
+            for (const patientId in history) {
+                const patient = history[patientId];
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `<div class="summary">${patient.name}</div><div class="date">${patient.analyses.length} analiz kaydı</div>`;
+                li.onclick = () => renderAnalysesForPatient(patientId, history);
+                historyList.appendChild(li);
+            }
+        }
+    }
+    function renderAnalysesForPatient(patientId, history) {
+        const historyList = document.getElementById('history-list');
+        const historyTitle = document.getElementById('history-title');
+        const historyBackBtn = document.getElementById('history-back-btn');
+        historyList.innerHTML = '';
+        const patient = history[patientId];
+        historyTitle.textContent = patient.name;
+        historyBackBtn.style.display = 'block';
+
+        if (patient.analyses.length === 0) { historyList.innerHTML = '<li>Bu hasta için analiz kaydı bulunamadı.</li>'; return; }
+        patient.analyses.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `<div class="date">${item.date}</div><div class="summary">${item.summary}</div>`;
+            li.onclick = () => { displayBatchResults(item); historyPanel.classList.remove('visible'); };
+            historyList.appendChild(li);
+        });
+    }
+    function closeHistoryPanel(event) { if(event.target === historyPanel) historyPanel.classList.remove('visible'); }
 
     // --- OLAY DİNLEYİCİLERİ ---
-    function attachPatientInfoListeners() { /* ... */ }
-    function attachUploaderListeners() { /* ... */ }
+    function attachPatientInfoListeners() {
+        const nameInput = document.getElementById('patient-name');
+        const surnameInput = document.getElementById('patient-surname');
+        const startBtn = document.getElementById('start-analysis-btn');
 
+        function validate() { startBtn.disabled = !(nameInput.value.trim() && surnameInput.value.trim()); }
+        nameInput.addEventListener('input', validate);
+        surnameInput.addEventListener('input', validate);
+
+        startBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            const surname = surnameInput.value.trim();
+            currentPatient = {
+                name: `${name} ${surname}`,
+                id: `${name.toLowerCase().replace(/ /g,'-')}-${surname.toLowerCase().replace(/ /g,'-')}-${Date.now()}`
+            };
+            loadUploaderInterface();
+        });
+    }
+    function attachUploaderListeners() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const cameraBtn = document.getElementById('camera-btn');
+        if(dropZone) {
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; });
+            dropZone.addEventListener('dragleave', (e) => { e.currentTarget.style.backgroundColor = 'transparent'; });
+            dropZone.addEventListener('drop', (e) => { e.preventDefault(); runBatchAnalysis(e.dataTransfer.files); });
+        }
+        if(fileInput) fileInput.addEventListener('change', (e) => runBatchAnalysis(e.target.files));
+        if(cameraBtn) cameraBtn.addEventListener('click', () => alert('Kamera özelliği yakında eklenecek!'));
+    }
+    function attachResultListeners() {
+        document.getElementById('scan-another-btn').addEventListener('click', () => {
+             if(userRole === 'professional') loadPatientInfoInterface();
+             else loadUploaderInterface();
+        });
+        if (userRole === 'professional') {
+            document.getElementById('pdf-btn')?.addEventListener('click', generatePDF);
+        }
+    }
+    
+    // --- BAŞLANGIÇ ---
     document.addEventListener("DOMContentLoaded", () => {
-        // ... Dinamik içerik ve dinleyicileri oluşturma ...
+        welcomeScreen.innerHTML = `<h1 class="welcome-title">brAIn</h1><p class="welcome-subtitle">Yapay zeka destekli MR görüntü analizi platformuna hoş geldiniz. Lütfen rolünüzü seçerek devam edin.</p><div class="role-selection"><button class="role-button" data-path="/patient"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 21V19C19 16.7909 17.2091 15 15 15H9C6.79086 15 5 16.7909 5 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 class="role-title">Hastayım / Yakınıyım</h3><p class="role-description">Basitleştirilmiş sonuçlar ve geçmiş takibi.</p></button><button class="role-button" data-path="/professional"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 13V9C22 8.44772 21.5523 8 21 8H17C16.4477 8 16 8.44772 16 9V13C16 13.5523 16.4477 14 17 14H21C21.5523 14 22 13.5523 22 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 19H10V11H13V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 19H4V16H7V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21H16C17.1046 21 18 20.1046 18 19V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 class="role-title">Sağlık Profesyoneliyim</h3><p class="role-description">Detaylı metrikler ve hasta takibi.</p></button></div>`;
+        loginModal.innerHTML = `<div class="login-card"><h3>Profesyonel Girişi</h3><input type="password" id="password-input-inner" placeholder="Şifre"><p id="login-error-inner"></p><button id="login-btn-inner" class="btn btn-primary">Giriş Yap</button></div>`;
+        aboutModal.innerHTML = `<div class="modal-content"><h2 data-key="aboutTitle"></h2><p data-key="aboutDesc1"></p><p><strong data-key="techUsed"></strong></p><ul><li><strong>TensorFlow.js:</strong> <span data-key="techDesc1"></span></li><li><strong>Teachable Machine:</strong> <span data-key="techDesc2"></span></li><li><strong>Google AI:</strong> <span data-key="techDesc3"></span></li></ul><p><strong data-key="developer"></strong> <span data-key="yourName"></span></p><p style="font-size: 12px; color: var(--warning-color);"><strong data-key="important"></strong> <span data-key="aboutDisclaimer"></span></p><button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;"><span data-key="btnClose"></span></button></div>`;
+
+        document.querySelector('.role-button[data-path="/patient"]').addEventListener('click', (e) => navigate(e.currentTarget.dataset.path));
+        document.querySelector('.role-button[data-path="/professional"]').addEventListener('click', () => { loginModal.classList.add('visible'); });
+        document.getElementById('login-btn-inner').addEventListener('click', () => {
+            if (document.getElementById('password-input-inner').value === CORRECT_PASSWORD) {
+                loginModal.classList.remove('visible');
+                navigate('/professional');
+            } else {
+                document.getElementById('login-error-inner').textContent = 'Hatalı şifre.';
+            }
+        });
+        historyBtn.addEventListener('click', () => { renderHistory(); historyPanel.classList.add('visible'); });
+        newPatientBtn.addEventListener('click', () => loadPatientInfoInterface());
+        document.getElementById('about-btn').addEventListener('click', () => aboutModal.classList.add('visible'));
+        aboutModal.addEventListener('click', (e) => { 
+            let button = e.target.closest('button');
+            if(e.target === aboutModal || (button && button.id === 'close-modal-btn')) {
+                aboutModal.classList.remove('visible');
+            }
+        });
         
         window.addEventListener('hashchange', router);
-        router(); // Sayfa ilk yüklendiğinde router'ı çalıştır
+        router();
     });
 </script>
 </body>
