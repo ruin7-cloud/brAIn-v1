@@ -52,230 +52,259 @@
         .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
         #history-panel { background: none; }
-        .history-content { position: absolute; left: 0; top: 0; width: 320px; height: 100%; background-color: var(--bg-color); box-shadow: 5px 0 15px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.3s ease; padding: 20px; box-sizing: border-box; }
+        .history-content { position: absolute; left: 0; top: 0; width: 320px; height: 100%; background-color: var(--bg-color); box-shadow: 5px 0 15px rgba(0,0,0,0.2); transform: translateX(-100%); transition: transform 0.3s ease; padding: 20px; box-sizing: border-box; color: var(--primary-text); }
         #history-panel.visible .history-content { transform: translateX(0); }
         .history-content h2 { margin-top: 0; }
-        .history-list { list-style: none; padding: 0; }
-        .history-item { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s; }
-        .history-item:hover { background-color: rgba(255,255,255,0.1); }
-        .history-item .date { font-size: 12px; color: var(--secondary-text); }
+        .history-list { list-style: none; padding: 0; margin: 0; max-height: calc(100vh - 80px); overflow-y: auto; }
+        .history-item { background-color: var(--card-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background-color 0.2s; text-align: left; }
+        .history-item:hover { background-color: var(--accent-color); color: white; }
+        .history-item .date { font-size: 12px; opacity: 0.7; }
         .history-item .summary { font-weight: 600; margin-top: 5px; }
-        .patient-warning { padding: 15px; background-color: rgba(255,199,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; font-weight: 500; margin-top: 20px; }
-        .prediction-list, .thumbnail-gallery, .results-title { text-align: left; }
+        .upload-title { font-size: 18px; font-weight: 600; margin: 0; }
+        .upload-subtitle { font-size: 14px; color: var(--secondary-text); margin-top: 4px; }
+        #drop-zone { border: 2px dashed var(--border-color); border-radius: 16px; padding: 40px; margin-top: 20px; cursor: pointer; transition: background-color .2s ease; }
+        #drop-zone:hover { background-color: rgba(255,255,255,0.1); }
+        .file-info-card { background-color: var(--bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px; text-align: left; }
+        .progress-bar-container { width: 100%; height: 6px; background-color: var(--border-color); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background-color: var(--accent-color); border-radius: 3px; transition: width 0.5s ease; }
+        .prediction-list { text-align: left; }
+        .patient-warning { padding: 15px; background-color: rgba(255,199,0,0.1); border: 1px solid var(--warning-color); color: var(--warning-color); border-radius: 8px; font-weight: 500; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div id="welcome-screen" class="view">
-        </div>
-
-    <div id="app-container" class="view">
-        <header class="header">
-            <button id="history-btn" style="display: none;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8V12L14 14M21.65 12.35C21.86 11.55 22 10.72 22 9.83C22 5.23 18.39 1.62 13.8 1.62C11.48 1.62 9.45 2.74 8.1 4.4L6.7 3H5V7H9L7.6 5.6C8.61 4.22 10.22 3.32 12 3.32C16.8 3.32 20.3 6.82 20.3 11.52C20.3 12.42 20.14 13.29 19.83 14.1L21.65 12.35Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <h1>brAIn</h1><p id="app-subtitle"></p>
-        </header>
-        <main class="card" id="main-card">
-            </main>
-    </div>
-
-    <div id="login-modal" class="modal-overlay">
-        </div>
-
-    <div id="history-panel">
-        <div class="history-content">
-            <h2>Geçmiş Analizler</h2>
-            <ul id="history-list" class="history-list">
-                </ul>
-        </div>
-    </div>
-    
-<script>
-// --- Değişkenler ve Sabitler ---
-const CORRECT_PASSWORD = '1234';
-let userRole, model, currentAnalysis;
-const elements = { /* Tüm DOM elementleri burada toplanacak */ };
-
-// --- Yönlendirme (Routing) ---
-const routes = {
-    '/': 'welcome-screen',
-    '/patient': 'app-container',
-    '/professional': 'app-container'
-};
-
-function router(path) {
-    // ... (Önceki kodla aynı, sayfa geçişlerini yönetir)
-}
-
-// --- Uygulama Başlatma ve Rol Seçimi ---
-function navigate(path) {
-    history.pushState({ path }, '', path);
-    router(path);
-}
-
-function initializeAppForRole(selectedRole) {
-    userRole = selectedRole;
-    document.body.className = ''; // Temaları temizle
-    document.body.classList.add(userRole === 'patient' ? 'theme-patient' : 'theme-professional');
-    
-    // Uygulama arayüzünü yükle
-    loadAppInterface();
-    
-    if (userRole === 'patient') {
-        elements.historyBtn.style.display = 'block';
-    }
-
-    if (!model) {
-        // loadModel();
-        console.log("Model yüklemesi burada başlayacak.");
-    }
-}
-
-// --- Arayüz Yükleyici ---
-function loadAppInterface() {
-    const mainCard = document.getElementById('main-card');
-    mainCard.innerHTML = `
-        <div id="default-state" class="state active">
-            <h3 class="upload-title">MR Taramalarınızı Yükleyin</h3>
-            <p class="upload-subtitle">Birden fazla dosya seçin veya sürükleyip bırakın</p>
-            <div id="drop-zone" style="border:2px dashed var(--secondary-text); padding: 40px; margin-top: 20px; border-radius: 16px; cursor: pointer;">
-                <p>Dosyaları Buraya Sürükleyin</p>
-            </div>
-        </div>
-        <div id="uploading-state" class="state">
-            <p>Analiz ediliyor, lütfen bekleyin...</p>
-        </div>
-        <div id="result-state" class="state">
-            </div>`;
-    // Gerekli olay dinleyicilerini buraya ekle (dropzone vs.)
-}
-
-// --- Hasta Geçmişi Fonksiyonları ---
-function saveAnalysisToHistory(analysisData) {
-    if (userRole !== 'patient') return;
-    let history = JSON.parse(localStorage.getItem('brainHistory')) || [];
-    history.unshift(analysisData); // En yeni başa gelsin
-    if (history.length > 10) history.pop(); // Son 10 analizi sakla
-    localStorage.setItem('brainHistory', JSON.stringify(history));
-}
-
-function renderHistory() {
-    const historyList = document.getElementById('history-list');
-    historyList.innerHTML = '';
-    let history = JSON.parse(localStorage.getItem('brainHistory')) || [];
-    if (history.length === 0) {
-        historyList.innerHTML = '<p>Daha önce yapılmış analiz bulunamadı.</p>';
-        return;
-    }
-    history.forEach(item => {
-        const li = document.createElement('li');
-        li.className = 'history-item';
-        li.innerHTML = `<div class="date">${item.date}</div><div class="summary">${item.summary}</div>`;
-        li.onclick = () => {
-            // displayBatchResults(item.data.valid, item.data.invalid);
-            console.log(`Geçmişten yükleniyor: ${item.id}`);
-            document.getElementById('history-panel').classList.remove('visible');
-        };
-        historyList.appendChild(li);
-    });
-}
-
-// --- Sonuçları Gösterme (Role Göre Farklılaşan) ---
-function displayBatchResults(validResults, invalidResults) {
-    const resultState = document.getElementById('result-state');
-    let html = '';
-
-    if(userRole === 'patient') {
-        // HASTA GÖRÜNÜMÜ
-        html += `<h3>Analiz Özeti</h3>`;
-        // ... (Basitleştirilmiş sonuçlar, yüzdesiz, büyük uyarılar)
-        html += `<div class="patient-warning"><strong>Önemli Uyarı:</strong> Bu sonuçlar tıbbi bir tanı değildir. Lütfen bulguları mutlaka bir sağlık profesyoneli ile görüşün.</div>`;
-    } else {
-        // PROFESYONEL GÖRÜNÜMÜ
-        html += `<h3>Detaylı Analiz Sonuçları</h3>`;
-        // ... (Tüm metrikler, yüzdeler, güven skoru, aykırı tespit)
-    }
-
-    resultState.innerHTML = html;
-
-    // Analizi geçmişe kaydet
-    const topPrediction = 'Sağlıklı'; // Örnek
-    saveAnalysisToHistory({
-        id: `res_${Date.now()}`,
-        date: new Date().toLocaleString('tr-TR'),
-        summary: `${validResults.length} Görüntü - En Yüksek Tahmin: ${topPrediction}`,
-        data: { valid: validResults, invalid: invalidResults }
-    });
-}
-
-// --- Başlangıç ve Olay Dinleyicileri ---
-document.addEventListener("DOMContentLoaded", () => {
-    // Tüm elementleri başta bir kere seç
-    elements.welcomeScreen = document.getElementById('welcome-screen');
-    elements.appContainer = document.getElementById('app-container');
-    elements.rolePatientBtn = document.getElementById('role-patient');
-    elements.roleProfessionalBtn = document.getElementById('role-professional');
-    elements.loginModal = document.getElementById('login-modal');
-    elements.passwordInput = document.getElementById('password-input');
-    elements.loginBtn = document.getElementById('login-btn');
-    elements.loginError = document.getElementById('login-error');
-    elements.historyBtn = document.getElementById('history-btn');
-    elements.historyPanel = document.getElementById('history-panel');
-
-    // welcome-screen içeriğini oluştur (dinamik olması için)
-    elements.welcomeScreen.innerHTML = `
         <h1 class="welcome-title">brAIn</h1>
         <p class="welcome-subtitle">Yapay zeka destekli MR görüntü analizi platformuna hoş geldiniz. Lütfen rolünüzü seçerek devam edin.</p>
         <div class="role-selection">
             <button class="role-button" data-path="/patient">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 21V19C19 16.7909 17.2091 15 15 15H9C6.79086 15 5 16.7909 5 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <h3 class="role-title">Hastayım / Yakınıyım</h3><p class="role-description">Basitleştirilmiş sonuçlar ve geçmiş takibi.</p>
+                <h3 class="role-title">Hastayım / Yakınıyım</h3>
+                <p class="role-description">Basitleştirilmiş sonuçlar ve geçmiş takibi.</p>
             </button>
             <button class="role-button" data-path="/professional">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 13V9C22 8.44772 21.5523 8 21 8H17C16.4477 8 16 8.44772 16 9V13C16 13.5523 16.4477 14 17 14H21C21.5523 14 22 13.5523 22 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 19H10V11H13V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 19H4V16H7V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21H16C17.1046 21 18 20.1046 18 19V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <h3 class="role-title">Sağlık Profesyoneliyim</h3><p class="role-description">Detaylı metrikler ve analiz araçları.</p>
+                <h3 class="role-title">Sağlık Profesyoneliyim</h3>
+                <p class="role-description">Detaylı metrikler ve analiz araçları.</p>
             </button>
-        </div>`;
-    // login-modal içeriğini oluştur
-    elements.loginModal.innerHTML = `
+        </div>
+    </div>
+
+    <div id="app-container" class="view">
+        <header class="header">
+            <button id="history-btn" style="display: none;" title="Geçmiş Analizler">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 8V12L14.5 14.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <h1>brAIn</h1><p id="app-subtitle"></p>
+        </header>
+        <main class="card" id="main-card"></main>
+    </div>
+
+    <div id="login-modal" class="modal-overlay">
         <div class="login-card">
             <h3>Profesyonel Girişi</h3>
-            <input type="password" id="password-input-inner" placeholder="Şifre">
+            <input type="password" id="password-input" placeholder="Şifre">
             <p id="login-error"></p>
-            <button id="login-btn-inner" class="btn btn-primary">Giriş Yap</button>
-        </div>`;
+            <button id="login-btn" class="btn btn-primary">Giriş Yap</button>
+        </div>
+    </div>
 
-    document.querySelector('.role-button[data-path="/patient"]').addEventListener('click', (e) => navigate(e.currentTarget.dataset.path));
-    document.querySelector('.role-button[data-path="/professional"]').addEventListener('click', () => {
+    <div id="history-panel" onclick="closeHistoryPanel(event)">
+        <div class="history-content">
+            <h2>Geçmiş Analizler</h2>
+            <ul id="history-list" class="history-list"></ul>
+        </div>
+    </div>
+    
+<script>
+    // --- Değişkenler ve Sabitler ---
+    const CORRECT_PASSWORD = '1234';
+    let userRole, model;
+    let batchResults = [], invalidImages = [];
+
+    // --- DOM Elementleri ---
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const appContainer = document.getElementById('app-container');
+    const rolePatientBtn = document.querySelector('.role-button[data-path="/patient"]');
+    const roleProfessionalBtn = document.querySelector('.role-button[data-path="/professional"]');
+    const loginModal = document.getElementById('login-modal');
+    const passwordInput = document.getElementById('password-input');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+    const historyBtn = document.getElementById('history-btn');
+    const historyPanel = document.getElementById('history-panel');
+    const mainCard = document.getElementById('main-card');
+
+    // --- Yönlendirme (Routing) ---
+    const routes = { '/': 'welcome-screen', '/patient': 'app-container', '/professional': 'app-container' };
+    function router(path) {
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.body.className = '';
+
+        const viewId = routes[path];
+        if (viewId) {
+            document.getElementById(viewId).classList.add('active');
+            if (viewId === 'welcome-screen') {
+                document.body.style.backgroundColor = 'var(--base-bg)';
+            } else {
+                userRole = path.substring(1);
+                initializeAppForRole(userRole);
+            }
+        } else {
+            history.replaceState({ path: '/' }, '', '/');
+            router('/');
+        }
+    }
+
+    function navigate(path) {
+        history.pushState({ path }, '', path);
+        router(path);
+    }
+
+    // --- Uygulama Başlatma ---
+    function initializeAppForRole(selectedRole) {
+        userRole = selectedRole;
+        document.body.classList.add(userRole === 'patient' ? 'theme-patient' : 'theme-professional');
+        document.getElementById('app-subtitle').textContent = userRole === 'patient' ? 'Hasta Paneli' : 'Profesyonel Panel';
+        
+        loadAppInterface();
+
+        if (userRole === 'patient') historyBtn.style.display = 'block';
+        if (!model) loadModel();
+    }
+    
+    // --- Arayüz Yükleyicileri ---
+    function loadAppInterface() {
+        mainCard.innerHTML = `
+            <div id="default-state" class="state active">
+                <h3 class="upload-title">MR Taramalarınızı Yükleyin</h3>
+                <p class="upload-subtitle">Analiz için bir veya daha fazla dosya seçin</p>
+                <label for="file-input" id="drop-zone"><p>Dosyaları Buraya Sürükleyin veya Tıklayın</p></label>
+                <input type="file" id="file-input" accept="image/*" multiple style="display:none;">
+            </div>
+            <div id="uploading-state" class="state">
+                <div class="file-info-card">
+                    <div class="file-details"><div id="file-status"></div></div>
+                </div>
+                <div class="progress-bar-container"><div id="progress-bar" style="width: 0%;"></div></div>
+            </div>
+            <div id="result-state" class="state"></div>`;
+        attachMainAppEventListeners();
+    }
+
+    // --- Model ve Analiz ---
+    async function loadModel() { /* Model Yükleme Fonksiyonu */ }
+    async function runBatchAnalysis(files) { /* Analiz Fonksiyonu */ }
+    
+    // --- Sonuçları Gösterme ---
+    function displayBatchResults(results, invalids) {
+        batchResults = results;
+        invalidImages = invalids;
+        const resultState = document.getElementById('result-state');
+        resultState.innerHTML = ''; // Temizle
+        
+        // Örnek:
+        let topPrediction = { className: 'Bilinmiyor', probability: 0 };
+        if(batchResults.length > 0) {
+            topPrediction = batchResults[0].predictions.sort((a,b) => b.probability - a.probability)[0];
+        }
+
+        if (userRole === 'patient') {
+            resultState.innerHTML = `
+                <h3>Analiz Özeti</h3>
+                <p>Analiz edilen ${batchResults.length} görüntü sonucunda en yüksek olasılık <strong>${topPrediction.className}</strong> olarak bulunmuştur.</p>
+                <div class="patient-warning"><strong>Önemli Uyarı:</strong> Bu sonuçlar tıbbi bir tanı değildir ve sadece bir yapay zeka tahminidir. Lütfen bulguları mutlaka bir sağlık profesyoneli ile görüşün.</div>
+                <button class="btn btn-primary" id="scan-another-btn">Yeni Analiz Yap</button>`;
+        } else {
+            // Profesyonel görünümü daha detaylı olacak
+            resultState.innerHTML = `
+                <h3>Detaylı Analiz Sonuçları</h3>
+                <div class="prediction-list"></div>
+                <div id="thumbnail-gallery-container" style="margin-top: 20px;"></div>
+                <button class="btn btn-primary" id="scan-another-btn">Yeni Analiz Yap</button>`;
+            //... Detaylı listeyi ve thumbnail'leri doldur...
+        }
+        document.getElementById('scan-another-btn').addEventListener('click', () => router(`/${userRole}`));
+
+        // Analizi geçmişe kaydet
+        if(userRole === 'patient') {
+            saveAnalysisToHistory({
+                id: `res_${Date.now()}`,
+                date: new Date().toLocaleString('tr-TR'),
+                summary: `${batchResults.length} Görüntü - En Yüksek Tahmin: ${topPrediction.className}`,
+                data: { valid: batchResults, invalid: invalidImages }
+            });
+        }
+    }
+
+    // --- Hasta Geçmişi ---
+    function saveAnalysisToHistory(analysisData) {
+        let history = JSON.parse(localStorage.getItem('brainHistory')) || [];
+        history.unshift(analysisData);
+        if (history.length > 10) history.pop();
+        localStorage.setItem('brainHistory', JSON.stringify(history));
+    }
+
+    function renderHistory() {
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        let history = JSON.parse(localStorage.getItem('brainHistory')) || [];
+        if (history.length === 0) {
+            historyList.innerHTML = '<li>Geçmiş analiz bulunamadı.</li>';
+            return;
+        }
+        history.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `<div class="date">${item.date}</div><div class="summary">${item.summary}</div>`;
+            li.onclick = () => {
+                displayBatchResults(item.data.valid, item.data.invalid);
+                historyPanel.classList.remove('visible');
+            };
+            historyList.appendChild(li);
+        });
+    }
+    
+    function closeHistoryPanel(event) {
+        if(event.target === historyPanel) historyPanel.classList.remove('visible');
+    }
+
+    // --- Olay Dinleyicileri ---
+    function attachMainAppEventListeners() {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        if(dropZone) {
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; });
+            dropZone.addEventListener('dragleave', (e) => { e.currentTarget.style.backgroundColor = 'transparent'; });
+            dropZone.addEventListener('drop', (e) => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
+        }
+        if(fileInput) {
+            fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        }
+    }
+    
+    rolePatientBtn.addEventListener('click', (e) => navigate(e.currentTarget.dataset.path));
+    roleProfessionalBtn.addEventListener('click', () => {
         document.body.classList.add('theme-professional');
-        elements.loginModal.classList.add('visible');
+        loginModal.classList.add('visible');
     });
-
-    document.getElementById('login-btn-inner').addEventListener('click', () => {
-        const pass = document.getElementById('password-input-inner').value;
-        if (pass === CORRECT_PASSWORD) {
-            elements.loginModal.classList.remove('visible');
+    loginBtn.addEventListener('click', () => {
+        if (passwordInput.value === CORRECT_PASSWORD) {
+            loginError.textContent = '';
+            passwordInput.value = '';
+            loginModal.classList.remove('visible');
             navigate('/professional');
         } else {
-            document.getElementById('login-error').textContent = 'Hatalı şifre.';
+            loginError.textContent = 'Hatalı şifre.';
         }
     });
-    
-    elements.historyBtn.addEventListener('click', () => {
+    historyBtn.addEventListener('click', () => {
         renderHistory();
-        elements.historyPanel.classList.add('visible');
+        historyPanel.classList.add('visible');
     });
-
-    elements.historyPanel.addEventListener('click', (e) => {
-        if (e.target === elements.historyPanel) {
-            elements.historyPanel.classList.remove('visible');
-        }
-    });
-
     window.addEventListener('popstate', () => router(window.location.pathname));
-    router(window.location.pathname);
-});
+    document.addEventListener("DOMContentLoaded", () => router(window.location.pathname));
 </script>
 </body>
 </html>
