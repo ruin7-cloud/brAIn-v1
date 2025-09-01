@@ -1,8 +1,8 @@
-# brAIn-v1
+# brAIn-v2
 
 https://ruin7-cloud.github.io/brAIn-v1/
 
-**brAIn-v1** is a web-based demo project that classifies brain MRI images using a Teachable Machine model.
+**brAIn-v2** is a web-based demo project that classifies brain MRI images using a Teachable Machine & TensorFlow.js model.
 
 ---
 
@@ -40,6 +40,9 @@ brAIn-v1/
 -Teachable Machine
 
 ## Updates
+
+Project Update Notes: 09/01/2025
+We have updated our dataset with over 12,000+ MRI images, significantly expanding the variety and volume of data. This enhancement allows our model to achieve higher accuracy and better generalization across different tumor types. The model training will now benefit from this larger dataset, enabling more reliable detection and classification of brain tumors.
 
 Project Update Notes: 08/31/2025
 The brAIn project has received a major update that significantly improves its interface and capabilities. The key new features in this release are:
