@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>brAIn - v3</title>
+    <base href="/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,14 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
     <style>
         :root {
-            /* Ana Karşılama Ekranı Renkleri */
-            --base-bg: #0D5D62; /* Turkuaza yakın ana arka plan */
+            --base-bg: #0D5D62;
             --base-text: #FFFFFF;
-            --base-accent: #20C997; /* Canlı bir turkuaz/yeşil tonu */
+            --base-accent: #20C997;
             --base-card: rgba(255, 255, 255, 0.1);
             --base-border: rgba(255, 255, 255, 0.2);
-
-            /* Tema Değişkenleri (Başlangıçta ana renkleri kullanır) */
             --bg-color: var(--base-bg);
             --card-color: var(--base-card);
             --primary-text: var(--base-text);
@@ -26,29 +24,25 @@
             --accent-color: var(--base-accent);
             --border-color: var(--base-border);
             --shadow-color: rgba(0, 0, 0, 0.2);
+            --error-color: #FF5B5B;
         }
-
-        /* TEMA 1: HASTA (KOYU TURKUAZ) */
         body.theme-patient {
-            --bg-color: #08313A; /* Daha Koyu Turkuaz Arka Plan */
+            --bg-color: #08313A;
             --card-color: #0F4C5C;
             --primary-text: #E0FBFC;
             --secondary-text: #96C7C1;
             --accent-color: #20C997;
             --border-color: #1A7480;
         }
-
-        /* TEMA 2: PROFESYONEL (AÇIK TURKUAZ) */
         body.theme-professional {
-            --bg-color: #F0FFFF; /* Çok Açık Turkuaz Arka Plan (Azure) */
+            --bg-color: #F0FFFF;
             --card-color: #FFFFFF;
-            --primary-text: #08313A; /* Koyu Metin */
+            --primary-text: #08313A;
             --secondary-text: #5A7A7D;
             --accent-color: #0D5D62;
             --border-color: #D4E9E9;
             --shadow-color: rgba(0, 0, 0, 0.05);
         }
-
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-color); 
@@ -63,34 +57,24 @@
             text-align: center; 
             transition: background-color 0.5s ease;
         }
-
-        /* --- Karşılama Ekranı --- */
-        #welcome-screen {
-            display: flex;
-            flex-direction: column;
+        .view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            opacity: 1;
-            transition: opacity 0.5s ease;
         }
-        #welcome-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .view.active {
+            display: flex;
         }
-        .welcome-title {
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--base-text);
+        #welcome-screen {
+            flex-direction: column;
         }
-        .welcome-subtitle {
-            font-size: 18px;
-            color: var(--base-text);
-            opacity: 0.8;
-            margin-top: 8px;
-            margin-bottom: 40px;
-            max-width: 450px;
-        }
+        .welcome-title { font-size: 48px; font-weight: 700; color: var(--base-text); }
+        .welcome-subtitle { font-size: 18px; color: var(--base-text); opacity: 0.8; margin-top: 8px; margin-bottom: 40px; max-width: 450px; }
         .role-selection { display: flex; gap: 20px; }
         .role-button {
             background-color: var(--base-card);
@@ -102,96 +86,53 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             backdrop-filter: blur(10px);
         }
-        .role-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
+        .role-button:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
         .role-button svg { color: var(--base-accent); margin-bottom: 16px; }
         .role-title { font-size: 18px; font-weight: 600; color: var(--base-text); }
         .role-description { font-size: 14px; color: var(--base-text); opacity: 0.7; margin-top: 8px; }
 
-        /* --- Ana Uygulama --- */
-        #app-container {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
+        #app-container { flex-direction: column; }
         .header { margin-bottom: 24px; }
         .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
         .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
         .card { background-color: var(--card-color); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid var(--border-color); padding: 32px; width: 100%; max-width: 480px; transition: all 0.3s ease; box-shadow: 0 4px 10px var(--shadow-color); }
-        .state { display: none; }
-        .state.active { display: block; }
         
-        /* --- Modal (Giriş Paneli) --- */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100;
+            display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s;
         }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        .login-card {
-            background-color: var(--card-color);
-            padding: 32px;
-            border-radius: 16px;
-            width: 300px;
-            text-align: center;
-            border: 1px solid var(--border-color);
-        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .login-card { background-color: var(--card-color); padding: 32px; border-radius: 16px; width: 300px; text-align: center; border: 1px solid var(--border-color); }
         .login-card h3 { margin-top: 0; }
-        .login-card input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            color: var(--primary-text);
-            box-sizing: border-box;
-        }
-        .login-card #login-error {
-            color: var(--error-color, #FF5B5B);
-            min-height: 20px;
-            font-size: 14px;
-        }
+        .login-card input { width: 100%; padding: 12px; margin-bottom: 16px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--primary-text); box-sizing: border-box; }
+        .login-card #login-error { color: var(--error-color); min-height: 20px; font-size: 14px; }
         .btn { width: 100%; padding: 12px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: background-color 0.3s ease; }
         .btn-primary { background-color: var(--accent-color); color: var(--primary-text); }
-        
     </style>
 </head>
 <body>
 
-    <div id="welcome-screen">
+    <div id="welcome-screen" class="view">
         <h1 class="welcome-title">brAIn</h1>
         <p class="welcome-subtitle">Yapay zeka destekli MR görüntü analizi platformuna hoş geldiniz. Lütfen rolünüzü seçerek devam edin.</p>
         <div class="role-selection">
-            <button class="role-button" id="role-patient">
+            <button class="role-button" id="role-patient" data-path="/patient">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 21V19C19 16.7909 17.2091 15 15 15H9C6.79086 15 5 16.7909 5 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <h3 class="role-title">Hastayım / Yakınıyım</h3>
                 <p class="role-description">Basitleştirilmiş ve anlaşılır sonuçlar.</p>
             </button>
-            <button class="role-button" id="role-professional">
+            <button class="role-button" id="role-professional" data-path="/professional">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 13V9C22 8.44772 21.5523 8 21 8H17C16.4477 8 16 8.44772 16 9V13C16 13.5523 16.4477 14 17 14H21C21.5523 14 22 13.5523 22 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 19H10V11H13V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 19H4V16H7V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21H16C17.1046 21 18 20.1046 18 19V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <h3 class="role-title">Sağlık Profesyoneliyim</h3>
                 <p class="role-description">Detaylı metrikler ve analiz araçları.</p>
             </button>
         </div>
+    </div>
+
+    <div id="app-container" class="view">
+        <header class="header"><h1>brAIn</h1><p id="app-subtitle"></p></header>
+        <main class="card" id="main-card">
+            </main>
     </div>
 
     <div id="login-modal" class="modal-overlay">
@@ -203,14 +144,11 @@
         </div>
     </div>
 
-    <div id="app-container">
-        </div>
-
 <script>
     let userRole;
-    const CORRECT_PASSWORD = '1234'; // Profesyonel girişi için basit şifre
+    let model;
+    const CORRECT_PASSWORD = '1234';
 
-    // --- DOM Elementleri ---
     const welcomeScreen = document.getElementById('welcome-screen');
     const appContainer = document.getElementById('app-container');
     const rolePatientBtn = document.getElementById('role-patient');
@@ -220,53 +158,80 @@
     const loginBtn = document.getElementById('login-btn');
     const loginError = document.getElementById('login-error');
 
-    // --- Uygulamayı Başlatma Fonksiyonları ---
-    function startAppTransition() {
-        welcomeScreen.classList.add('hidden');
-        setTimeout(() => {
-            welcomeScreen.style.display = 'none';
-            appContainer.style.display = 'flex';
-            // Ana uygulama HTML'ini ve JS'ini burada yükleyip başlatacağız.
-            // Şimdilik sadece bir mesaj gösterelim:
-            appContainer.innerHTML = `<div class="card"><h2>Hoş Geldiniz, ${userRole === 'patient' ? 'Hasta' : 'Profesyonel'}!</h2><p>Uygulamanın geri kalanı buraya gelecek.</p></div>`;
-        }, 500);
-    }
-    
-    function initializeAndStartApp(selectedRole) {
-        userRole = selectedRole;
-        document.body.classList.add(userRole === 'patient' ? 'theme-patient' : 'theme-professional');
-        startAppTransition();
-        // Model yüklemesi gibi ağır işlemler burada başlayabilir.
+    const routes = {
+        '/': 'welcome-screen',
+        '/patient': 'app-container',
+        '/professional': 'app-container'
+    };
+
+    function router(path) {
+        console.log(`Yönlendirme: ${path}`);
+        
+        // Tüm görünümleri gizle
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.body.className = ''; // Temayı temizle
+
+        const viewId = routes[path] || 'welcome-screen';
+        const view = document.getElementById(viewId);
+
+        if (view) {
+            if (viewId === 'welcome-screen') {
+                document.body.style.backgroundColor = 'var(--base-bg)';
+            } else {
+                userRole = path.substring(1); // '/patient' -> 'patient'
+                document.body.classList.add(userRole === 'patient' ? 'theme-patient' : 'theme-professional');
+                document.getElementById('app-subtitle').textContent = userRole === 'patient' ? 'Hasta Paneli' : 'Profesyonel Panel';
+
+                // Modeli sadece ilk defa uygulama ekranına girildiğinde yükle
+                if (!model) {
+                    // loadModel();
+                    console.log("Model yüklemesi burada başlayacak.");
+                    // Şimdilik ana kart içeriğini oluşturalım
+                    document.getElementById('main-card').innerHTML = `<h3>${userRole} Arayüzü</h3><p>Dosya yükleme ve analiz özellikleri buraya gelecek.</p>`;
+                }
+            }
+            view.classList.add('active');
+        } else {
+            // 404 durumu, ana ekrana yönlendir
+            history.replaceState(null, '', '/');
+            router('/');
+        }
     }
 
     // --- Olay Dinleyicileri ---
-    rolePatientBtn.addEventListener('click', () => {
-        initializeAndStartApp('patient');
+    rolePatientBtn.addEventListener('click', (e) => {
+        const path = e.currentTarget.dataset.path;
+        history.pushState(null, '', path);
+        router(path);
     });
 
     roleProfessionalBtn.addEventListener('click', () => {
-        // Profesyonel seçince önce temayı ayarla, sonra giriş penceresini göster
         document.body.classList.add('theme-professional');
         loginModal.classList.add('visible');
     });
 
     loginBtn.addEventListener('click', () => {
         if (passwordInput.value === CORRECT_PASSWORD) {
-            loginModal.classList.remove('visible');
-            initializeAndStartApp('professional');
-        } else {
-            loginError.textContent = 'Hatalı şifre. Lütfen tekrar deneyin.';
+            loginError.textContent = '';
             passwordInput.value = '';
-        }
-    });
-    
-    // Şifre alanında Enter'a basılınca da giriş yapmayı dene
-    passwordInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            loginBtn.click();
+            loginModal.classList.remove('visible');
+            const path = roleProfessionalBtn.dataset.path;
+            history.pushState(null, '', path);
+            router(path);
+        } else {
+            loginError.textContent = 'Hatalı şifre.';
         }
     });
 
+    // Tarayıcının Geri/İleri tuşlarını dinle
+    window.addEventListener('popstate', () => {
+        router(window.location.pathname);
+    });
+
+    // Sayfa ilk yüklendiğinde doğru ekranı göstermek için router'ı çalıştır
+    document.addEventListener("DOMContentLoaded", () => {
+        router(window.location.pathname);
+    });
 </script>
 </body>
 </html>
