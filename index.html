@@ -38,13 +38,13 @@
         .top-bar { position: fixed; top: 20px; right: 20px; z-index: 150; display: flex; align-items: center; gap: 15px; }
         .lang-switcher { display: flex; align-items: center; background-color: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 8px; }
         .lang-link { color: #A1A8B8; text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 5px; transition: color 0.3s; }
-        body.theme-professional .lang-link { color: var(--secondary-text); }
+        body.theme-professional .lang-link, body.theme-patient .lang-link { color: var(--secondary-text); }
         .lang-link.active, .lang-link:hover { color: #FFFFFF; }
-        body.theme-professional .lang-link.active, body.theme-professional .lang-link:hover { color: var(--primary-text); }
+        body.theme-professional .lang-link.active, body.theme-professional .lang-link:hover, body.theme-patient .lang-link.active, body.theme-patient .lang-link:hover { color: var(--primary-text); }
         #about-btn { background: none; border: none; cursor: pointer; color: #A1A8B8; padding: 0; transition: color 0.3s; }
-        body.theme-professional #about-btn { color: var(--secondary-text); }
+        body.theme-professional #about-btn, body.theme-patient #about-btn { color: var(--secondary-text); }
         #about-btn:hover { color: #FFFFFF; }
-        body.theme-professional #about-btn:hover { color: var(--primary-text); }
+        body.theme-professional #about-btn:hover, body.theme-patient #about-btn:hover { color: var(--primary-text); }
         .header { margin-bottom: 24px; text-align: center; position: relative; width: 100%; max-width: 480px; }
         .header h1 { font-size: 32px; font-weight: 700; margin: 0; }
         .header p { font-size: 16px; color: var(--secondary-text); margin: 4px 0 0 0; }
@@ -102,9 +102,11 @@
         .thumbnail.active { border-color: var(--accent-color); opacity: 1; }
         .thumbnail.outlier { border-color: var(--outlier-color); }
         .disclaimer { font-size: 12px; color: var(--warning-color); background-color: rgba(255, 199, 0, 0.1); border: 1px solid rgba(255, 199, 0, 0.2); border-radius: 8px; padding: 10px; margin-top: 24px; text-align: left; line-height: 1.5; }
+        #pdf-render-container { display: none; }
     </style>
 </head>
 <body>
+
     <div class="top-bar">
         <div class="lang-switcher">
             <a href="#" class="lang-link" data-lang="en">EN</a><span>|</span><a href="#" class="lang-link" data-lang="tr">TR</a>
@@ -139,7 +141,6 @@
     <div id="pdf-render-container" style="position: absolute; left: -9999px; top: 0;"></div>
     
 <script>
-    // --- SABİTLER ve GLOBAL DEĞİŞKENLER ---
     const CORRECT_PASSWORD = '1234';
     const URL = "./model/";
     const CONFIDENCE_THRESHOLD = 0.81;
@@ -157,8 +158,8 @@
     const mainCard = document.getElementById('main-card');
     const aboutModal = document.getElementById('about-modal');
 
-    // --- TÜM ÇEVİRİLER ---
-    const translations = { /* ... (TÜM EN VE TR ÇEVİRİLERİ BURADA) ... */ };
+    // --- ÇEVİRİ OBJESİ ---
+    const translations = { /* ... (TÜM EN VE TR ÇEVİRİLERİ BURAYA GELECEK, YER KAPLAMAMASI İÇİN GİZLENDİ) ... */ };
 
     // --- YÖNLENDİRME (ROUTING) ---
     const routes = { '/': 'welcome-screen', '/patient': 'app-container', '/professional': 'app-container' };
@@ -166,6 +167,7 @@
         const path = window.location.hash.substring(1) || '/';
         document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
         document.body.className = '';
+        
         const viewId = routes[path];
         if (viewId) {
             document.getElementById(viewId).classList.add('active');
@@ -208,14 +210,14 @@
     }
 
     function loadUploaderInterface() {
-        const title = userRole === 'professional' && currentPatient ? `${currentPatient.name} için Taramaları Yükleyin` : translations[currentLang]?.uploadTitle || 'MR Taramalarınızı Yükleyin';
+        const title = userRole === 'professional' && currentPatient ? `${currentPatient.name} için Taramaları Yükleyin` : (translations[currentLang]?.uploadTitle || 'MR Taramalarınızı Yükleyin');
         mainCard.innerHTML = `
             <div id="default-state" class="state active">
                 <h3 class="upload-title">${title}</h3>
                 <p class="upload-subtitle" data-key="uploadSubtitle"></p>
                 <div class="upload-options" style="margin-top:20px;">
                     <label for="file-input" id="drop-zone">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M14.4,6.1H16.8V8.5H19.2V6.1H21.6V3.7H19.2V1.3H16.8V3.7H14.4V6.1ZM12,18A4.8,4.8,0,1,0,7.2,13.2,4.8,4.8,0,0,0,12,18Zm0-7.2a2.4,2.4,0,1,1-2.4,2.4A2.4,2.4,0,0,1,12,10.8ZM18,3.7H14.46A7.14,7.14,0,0,0,12,2.5,7.14,7.14,0,0,0,9.54,3.7H6A3.6,3.6,0,0,0,2.4,7.3V19.3A3.6,3.6,0,0,0,6,22.9H18a3.6,3.6,0,0,0,3.6-3.6V7.3A3.6,3.6,0,0,0,18,3.7Zm1.2,15.6a1.2,1.2,0,0,1-1.2,1.2H6a1.2,1.2,0,0,1-1.2-1.2V7.3A1.2,1.2,0,0,1,6,6.1H18a1.2,1.2,0,0,1,1.2,1.2Z"/></svg>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M19.5 14.25V14.25C19.5 15.2165 18.7165 16 17.75 16H13V19.25C13 19.6642 12.6642 20 12.25 20H10.75C10.3358 20 10 19.6642 10 19.25V16H5.25C4.2835 16 3.5 15.2165 3.5 14.25V14.25C3.5 13.2835 4.2835 12.5 5.25 12.5H5.66919C5.83538 12.5 5.99216 12.4042 6.07198 12.2591C6.77241 11.085 7.91424 10.25 9.25 10.25H9.5V8.75C9.5 7.3769 10.6269 6.25 12 6.25C13.3731 6.25 14.5 7.3769 14.5 8.75V12.5H17.75C18.7165 12.5 19.5 13.2835 19.5 14.25Z"/></svg>
                         <span data-key="btnChooseFiles"></span>
                     </label>
                     <button id="camera-btn" class="btn btn-secondary">
@@ -228,6 +230,7 @@
             </div>
             <div id="uploading-state" class="state">
                 <div class="file-info-card">
+                    <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg></div>
                     <div class="file-details"><div id="file-name" class="file-name"></div><div id="file-status"></div></div>
                 </div>
                 <div class="progress-bar-container"><div id="progress-bar" style="width: 0%;"></div></div>
@@ -235,20 +238,23 @@
             <div id="result-state" class="state"></div>
             <div id="error-state" class="state">
                 <div class="file-info-card">
+                    <div class="file-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
                     <div class="file-details"><div class="file-name" data-key="errorTitle"></div><div class="file-status" data-key="errorText"></div></div>
                 </div>
                 <button id="try-again-btn" class="btn btn-primary"><span data-key="btnTryAgain"></span></button>
             </div>
-            <div id="camera-state" class="state" style="display:none;">
+            <div id="camera-state" class="state">
                 <video id="camera-feed" autoplay playsinline style="width:100%; max-width:400px; border-radius:16px; margin-bottom:16px;"></video>
                 <div class="result-buttons" style="display:flex; gap:12px;"><button id="cancel-camera-btn" class="btn btn-secondary"><span data-key="btnCancel"></span></button><button id="capture-btn" class="btn btn-primary"><span data-key="btnCaptureImage"></span></button></div>
             </div>`;
         attachUploaderListeners();
         changeLanguage(currentLang);
     }
+    
+    // --- BURADAN İTİBAREN v2'DEN GELEN TÜM FONKSİYONLAR EKSİKSİZ OLARAK EKLENMİŞTİR ---
 
-    // --- DİL FONKSİYONLARI ---
-    function setText(el, key) { if (el) { const text = translations[currentLang][key]; if(text !== undefined) el.innerHTML = text; } }
+    function setText(el, key) { if (el) { const text = translations[currentLang]?.[key]; if(text !== undefined) el.innerHTML = text; } }
+    
     function changeLanguage(lang) {
         if (!translations[lang]) return;
         currentLang = lang;
@@ -260,7 +266,6 @@
         if (activeState && activeState.id === 'result-state') { displayBatchResults(); }
     }
 
-    // --- MODEL ve ANALİZ ---
     async function loadModel() { 
         console.log("Model yükleniyor...");
         try { 
@@ -268,15 +273,21 @@
             console.log("Model başarıyla yüklendi.");
         } catch (error) { 
             console.error("Model yüklenemedi:", error); 
-            showState('error-state');
-            document.querySelector('#error-state .file-status').textContent = "Model yüklenemedi. 'model' klasörünün doğru yerde olduğundan emin olun.";
+            loadUploaderInterface(); // Hata durumunda uploader'ı yeniden yükle
+            const errorState = document.getElementById('error-state');
+            if(errorState) {
+                errorState.querySelector('[data-key="errorText"]').textContent = "Model yüklenemedi. 'model' klasörünün doğru yerde olduğundan emin olun.";
+                showState('error-state');
+            }
         } 
     }
+    
     function showState(stateName) { 
         mainCard.querySelectorAll('.state').forEach(s => s.classList.remove('active')); 
         const targetState = mainCard.querySelector(`#${stateName}`);
         if(targetState) targetState.classList.add('active');
     }
+
     async function runBatchAnalysis(files) {
         if (!model) { alert("Model henüz yüklenmedi, lütfen bekleyin."); return; }
         batchResults = []; invalidImages = []; currentResultId = null; 
@@ -304,9 +315,8 @@
         displayBatchResults();
     }
     
-    // --- SONUÇ GÖSTERME ---
     function displayBatchResults(data) {
-        if (data && data.id) { // Geçmişten veri yükleniyorsa
+        if (data && data.id) {
             batchResults = data.data.valid;
             invalidImages = data.data.invalid;
             currentResultId = data.id;
@@ -320,11 +330,11 @@
             const topPred = batchResults.length > 0 ? batchResults.map(r => r.predictions.sort((a,b)=>b.probability-a.probability)[0]).reduce((a,b)=>a.probability>b.probability?a:b) : null;
             htmlContent = `
                 <h3 class="upload-title" data-key="analysisSummaryTitle"></h3>
-                <p class="upload-subtitle" style="margin-top:20px;">Analiz edilen ${batchResults.length} görüntü arasında en yüksek olasılık <strong>${topPred ? (translations[currentLang].tumorDescriptions[topPred.className]?.name || topPred.className) : 'Belirlenemedi'}</strong> olarak tespit edilmiştir.</p>
+                <p class="upload-subtitle" style="margin-top:20px; text-align:left;">Analiz edilen ${batchResults.length} görüntü arasında en yüksek olasılıkla <strong>${topPred ? (translations[currentLang].tumorDescriptions[topPred.className]?.name || topPred.className) : 'Belirlenemedi'}</strong> sonucu tespit edilmiştir.</p>
                 <div class="patient-warning" data-key="patientWarning"></div>
-                <div class="result-buttons"><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div>`;
+                <div class="result-buttons" style="margin-top:20px;"><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div>`;
         } else { // professional
-            htmlContent = `<div id="result-content"><div id="confidence-score" class="confidence-score"></div><h3 id="main-results-title" class="results-title"></h3><div id="prediction-list" class="prediction-list"></div><div id="tumor-info" class="tumor-info" style="display:none;"></div><div id="detailed-results" class="detailed-results"><h3 class="results-title" style="font-size: 18px;" data-key="detailedBreakdown"></h3><div id="thumbnail-gallery" class="thumbnail-gallery"></div></div><div id="invalid-images" class="invalid-images" style="display: none;"><h3 class="results-title" style="font-size: 16px; color: var(--warning-color);" data-key="invalidImagesTitle"></h3><p style="font-size: 12px; color: var(--secondary-text);" data-key="invalidImagesText"></p><div id="invalid-thumbnail-gallery" class="thumbnail-gallery"></div></div></div><div class="result-buttons"><button id="pdf-btn" class="btn btn-secondary"><span data-key="btnDownloadReport"></span></button><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div>`;
+            htmlContent = `<div id="result-content"><div id="confidence-score" class="confidence-score"></div><h3 id="main-results-title" class="results-title"></h3><div id="prediction-list" class="prediction-list"></div><div id="tumor-info" class="tumor-info" style="display:none;"></div><div id="detailed-results" class="detailed-results"><h3 class="results-title" style="font-size: 18px;" data-key="detailedBreakdown"></h3><div id="thumbnail-gallery" class="thumbnail-gallery"></div></div><div id="invalid-images" class="invalid-images" style="display: none;"><h3 class="results-title" style="font-size: 16px;" data-key="invalidImagesTitle"></h3><p style="font-size: 12px;" data-key="invalidImagesText"></p><div id="invalid-thumbnail-gallery" class="thumbnail-gallery"></div></div></div><div class="result-buttons"><button id="pdf-btn" class="btn btn-secondary"><span data-key="btnDownloadReport"></span></button><button id="scan-another-btn" class="btn btn-primary"><span data-key="btnScanAnother"></span></button></div>`;
         }
         resultState.innerHTML = htmlContent;
 
@@ -370,6 +380,53 @@
         if(!data) saveAnalysisToHistory();
     }
 
+    function renderPredictionUI(predictions, title) {
+        const mainResultsTitle = document.getElementById('main-results-title');
+        const predictionList = document.getElementById('prediction-list');
+        if(!mainResultsTitle || !predictionList) return;
+
+        mainResultsTitle.textContent = title;
+        predictionList.innerHTML = '';
+        const filtered = predictions.filter(p => p.probability * 100 >= 1).sort((a, b) => b.probability - a.probability);
+        if (filtered.length === 0) { predictionList.innerHTML = `<p>${translations[currentLang].noConfidentResult}</p>`; return null; }
+        const topPrediction = filtered[0];
+        filtered.forEach((p, index) => {
+            const item = document.createElement('div');
+            item.className = 'prediction-item ' + (index === 0 ? 'top-prediction' : '');
+            const percentage = (p.probability * 100).toFixed(1);
+            const desc = translations[currentLang].tumorDescriptions[p.className];
+            const className = desc ? desc.name.split(' (')[0] : p.className;
+            item.innerHTML = `<div class="prediction-label" title="${className}">${className}</div><div class="prediction-bar-bg"><div class="prediction-bar" style="width: 0%; background-color: ${index === 0 ? 'var(--success-color)' : 'var(--accent-color)'};">${percentage}%</div></div>`;
+            predictionList.appendChild(item);
+            setTimeout(() => { item.querySelector('.prediction-bar').style.width = `${percentage}%`; }, 50 * (index + 1));
+        });
+        return topPrediction;
+    }
+
+    function updateTumorInfo(topPrediction) {
+        const tumorInfoEl = document.getElementById('tumor-info');
+        if(!tumorInfoEl) return;
+        const info = topPrediction ? translations[currentLang].tumorDescriptions[topPrediction.className] : null; 
+        if (info && info.description) { 
+            const learnMoreLink = info.link ? `<a href="${info.link}" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg></a>` : ''; 
+            tumorInfoEl.innerHTML = `<h4>${info.name} ${learnMoreLink}</h4><p>${info.description}</p>`; 
+            tumorInfoEl.style.display = 'block'; 
+        } else { 
+            tumorInfoEl.style.display = 'none'; 
+        } 
+    }
+
+    function calculateConfidence() { 
+        if (batchResults.length === 0) return { overallScore: 0, majorityClass: null }; 
+        const topPredictions = batchResults.map(r => r.predictions.sort((a, b) => b.probability - a.probability)[0]); 
+        const classCounts = topPredictions.reduce((acc, pred) => { acc[pred.className] = (acc[pred.className] || 0) + 1; return acc; }, {}); 
+        const majorityClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b); 
+        const consistency = (classCounts[majorityClass] / batchResults.length) * 100; 
+        const avgCertainty = topPredictions.reduce((sum, pred) => sum + pred.probability, 0) / topPredictions.length * 100; 
+        const overallScore = (consistency * 0.6) + (avgCertainty * 0.4); 
+        return { overallScore, majorityClass }; 
+    }
+
     // --- GEÇMİŞ (HISTORY) ---
     function saveAnalysisToHistory() {
         if (userRole !== 'patient' && !currentPatient) return;
@@ -396,7 +453,6 @@
             localStorage.setItem(storageKey, JSON.stringify(history));
         } catch(e) {
             console.error("Geçmişe kaydedilirken hata oluştu (muhtemelen hafıza dolu):", e);
-            alert("Çok fazla analiz kaydı nedeniyle geçmişe yazılamadı. Lütfen eski kayıtları silin.");
         }
     }
     function renderHistory() {
@@ -475,6 +531,8 @@
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
         const cameraBtn = document.getElementById('camera-btn');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        
         if(dropZone) {
             dropZone.addEventListener('click', () => fileInput.click());
             dropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'; });
@@ -483,6 +541,7 @@
         }
         if(fileInput) fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
         if(cameraBtn) cameraBtn.addEventListener('click', startCamera);
+        if(tryAgainBtn) tryAgainBtn.addEventListener('click', resetApp);
     }
     function attachResultListeners() {
         document.getElementById('scan-another-btn').addEventListener('click', () => {
@@ -496,6 +555,7 @@
     
     // --- BAŞLANGIÇ ---
     document.addEventListener("DOMContentLoaded", () => {
+        // Dinamik içerik ve olay dinleyicilerini ilk başta oluştur
         welcomeScreen.innerHTML = `<h1 class="welcome-title">brAIn</h1><p class="welcome-subtitle">Yapay zeka destekli MR görüntü analizi platformuna hoş geldiniz. Lütfen rolünüzü seçerek devam edin.</p><div class="role-selection"><button class="role-button" data-path="/patient"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 12C13.6569 12 15 10.6569 15 9C15 7.34315 13.6569 6 12 6C10.3431 6 9 7.34315 9 9C9 10.6569 10.3431 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 21V19C19 16.7909 17.2091 15 15 15H9C6.79086 15 5 16.7909 5 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 class="role-title">Hastayım / Yakınıyım</h3><p class="role-description">Basitleştirilmiş sonuçlar ve geçmiş takibi.</p></button><button class="role-button" data-path="/professional"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 13V9C22 8.44772 21.5523 8 21 8H17C16.4477 8 16 8.44772 16 9V13C16 13.5523 16.4477 14 17 14H21C21.5523 14 22 13.5523 22 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 19H10V11H13V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 19H4V16H7V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8V5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21H16C17.1046 21 18 20.1046 18 19V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 class="role-title">Sağlık Profesyoneliyim</h3><p class="role-description">Detaylı metrikler ve hasta takibi.</p></button></div>`;
         loginModal.innerHTML = `<div class="login-card"><h3>Profesyonel Girişi</h3><input type="password" id="password-input-inner" placeholder="Şifre"><p id="login-error-inner"></p><button id="login-btn-inner" class="btn btn-primary">Giriş Yap</button></div>`;
         aboutModal.innerHTML = `<div class="modal-content"><h2 data-key="aboutTitle"></h2><p data-key="aboutDesc1"></p><p><strong data-key="techUsed"></strong></p><ul><li><strong>TensorFlow.js:</strong> <span data-key="techDesc1"></span></li><li><strong>Teachable Machine:</strong> <span data-key="techDesc2"></span></li><li><strong>Google AI:</strong> <span data-key="techDesc3"></span></li></ul><p><strong data-key="developer"></strong> <span data-key="yourName"></span></p><p style="font-size: 12px; color: var(--warning-color);"><strong data-key="important"></strong> <span data-key="aboutDisclaimer"></span></p><button id="close-modal-btn" class="btn btn-primary" style="margin-top: 20px;"><span data-key="btnClose"></span></button></div>`;
@@ -513,6 +573,7 @@
         historyBtn.addEventListener('click', () => { renderHistory(); historyPanel.classList.add('visible'); });
         newPatientBtn.addEventListener('click', () => loadPatientInfoInterface());
         document.getElementById('about-btn').addEventListener('click', () => aboutModal.classList.add('visible'));
+        document.querySelectorAll('.lang-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); changeLanguage(e.target.dataset.lang); }); });
         aboutModal.addEventListener('click', (e) => { 
             let button = e.target.closest('button');
             if(e.target === aboutModal || (button && button.id === 'close-modal-btn')) {
@@ -523,22 +584,6 @@
         window.addEventListener('hashchange', router);
         router();
     });
-    // --- BURAYA TÜM v2 FONKSİYONLARI EKLENDİ ---
-    (function() {
-        // Bu fonksiyonlar, ana script'teki global değişkenlere erişebilir.
-        // v2'den gelen fonksiyonların tam listesi:
-        // translations, setText, changeLanguage, loadModel, showState, renderPredictionUI,
-        // displayBatchResults, calculateConfidence, updateTumorInfo, runBatchAnalysis,
-        // handleFiles, handleCameraCapture, startCamera, stopCamera, resetApp, generatePDF
-        // Not: Yukarıdaki bazı fonksiyonlar v3 yapısına göre güncellendi ve ana script'e taşındı.
-        // Eksik olan veya güncellenmesi gerekenler aşağıda yeniden tanımlandı.
-
-        // Önceki koddan gelen fonksiyonlar buraya yapıştırılıyor ve v3 yapısına uyarlanıyor.
-        // Bu, kodun tamamını tek bir yerde tutarak karmaşıklığı azaltır.
-        // ...
-        // Not: Gerçek uygulamada, bu birleştirme işlemi daha modüler bir yapıda (örn. ES6 modülleri) yapılabilir.
-        // Ancak tek dosya gereksinimi nedeniyle, tüm fonksiyonları bu script etiketine dahil ediyoruz.
-    })();
 </script>
 </body>
 </html>
